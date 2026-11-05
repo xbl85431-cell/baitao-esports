@@ -4,40 +4,105 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>白桃电竞 - 俱乐部下单</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f7f5f8;color:#29242d;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
-header{background:linear-gradient(135deg,#f4a9c6,#e879a7);color:white;padding:30px 22px 26px;border-radius:0 0 25px 25px}
+body{
+ margin:0;
+ background:#f7f5f8;
+ color:#29242d;
+ font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif
+}
+header{
+ background:linear-gradient(135deg,#f4a9c6,#e879a7);
+ color:white;
+ padding:30px 22px 26px;
+ border-radius:0 0 25px 25px
+}
 header h1{margin:0;font-size:28px}
 header p{margin:9px 0 0;font-size:13px;opacity:.9}
 .container{padding:18px;max-width:600px;margin:auto}
-.card{background:white;border-radius:17px;padding:20px;margin-bottom:15px;box-shadow:0 3px 15px #00000008}
+.card{
+ background:white;
+ border-radius:17px;
+ padding:20px;
+ margin-bottom:15px;
+ box-shadow:0 3px 15px #00000008
+}
 .title{font-size:17px;font-weight:700;margin:0 0 16px}
 label{display:block;font-size:13px;color:#777;margin:13px 0 7px}
-input,select,textarea{width:100%;padding:13px;border:1px solid #eee;border-radius:10px;font-size:15px;background:#fff;color:#333}
+input,select,textarea{
+ width:100%;
+ padding:13px;
+ border:1px solid #eee;
+ border-radius:10px;
+ font-size:15px;
+ background:#fff;
+ color:#333
+}
 textarea{height:75px;resize:vertical}
 .services{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-.service{border:1px solid #eee;border-radius:12px;padding:13px 5px;text-align:center;cursor:pointer}
-.service.active{border:2px solid #e879a7;background:#fff4f8;color:#d65389}
-.service b{display:block;font-size:16px;margin-bottom:5px}
+.service{
+ border:1px solid #eee;
+ border-radius:12px;
+ padding:13px 5px;
+ text-align:center;
+ cursor:pointer
+}
+.service.active{
+ border:2px solid #e879a7;
+ background:#fff4f8;
+ color:#d65389
+}
+.service b{display:block;font-size:15px;margin-bottom:5px}
 .service small{font-size:12px;color:#888}
-button{border:0;border-radius:11px;padding:14px;font-size:15px;font-weight:700;cursor:pointer}
+button{
+ border:0;
+ border-radius:11px;
+ padding:14px;
+ font-size:15px;
+ font-weight:700;
+ cursor:pointer
+}
 button:disabled{opacity:.6;cursor:not-allowed}
-.primary{width:100%;background:#e879a7;color:white;margin-top:17px}
+.primary{
+ width:100%;
+ background:#e879a7;
+ color:white;
+ margin-top:17px
+}
 .secondary{background:#f5e5ed;color:#bd527e}
 .price{font-size:27px;color:#df6396;font-weight:800}
-.muted{font-size:12px;color:#999;line-height:1.7}
+.muted{font-size:12px;color:#999;line-height:1.8}
 .hidden{display:none}
-.order{border:1px solid #f0e7ec;border-radius:12px;padding:13px;margin:10px 0}
+.order{
+ border:1px solid #f0e7ec;
+ border-radius:12px;
+ padding:13px;
+ margin:10px 0;
+ overflow-wrap:anywhere
+}
 .order strong{font-size:14px}
 .status{color:#d45c91;font-size:12px}
 .admin-actions{display:flex;gap:8px;margin-top:10px}
 .admin-actions button{flex:1;font-size:12px;padding:10px}
-#message{font-size:13px;line-height:1.7;margin-top:12px}
+#message{font-size:13px;line-height:1.8;margin-top:12px}
+#systemMessage{
+ background:#fff4f4;
+ color:#c33;
+ border-radius:10px;
+ padding:12px;
+ margin-bottom:15px;
+ font-size:13px;
+ display:none;
+ line-height:1.7
+}
 footer{text-align:center;color:#aaa;font-size:11px;padding:20px}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -46,6 +111,8 @@ footer{text-align:center;color:#aaa;font-size:11px;padding:20px}
 </header>
 
 <div class="container">
+
+<div id="systemMessage"></div>
 
 <div class="card">
 <h3 class="title">🎮 预约下单</h3>
@@ -57,19 +124,26 @@ footer{text-align:center;color:#aaa;font-size:11px;padding:20px}
 <input id="gameid" placeholder="请输入您的三角洲游戏 ID">
 
 <label>选择服务</label>
+
 <div class="services">
 <div class="service active" onclick="chooseService('娱乐陪玩',this)">
-<b>娱乐陪玩</b><small>33元 / 小时</small>
+<b>娱乐陪玩</b>
+<small>33元 / 小时</small>
 </div>
+
 <div class="service" onclick="chooseService('技术陪玩',this)">
-<b>技术陪玩</b><small>44元 / 小时</small>
+<b>技术陪玩</b>
+<small>44元 / 小时</small>
 </div>
+
 <div class="service" onclick="chooseService('护航服务',this)">
-<b>护航服务</b><small>99元 / 单</small>
+<b>护航服务</b>
+<small>99元 / 单</small>
 </div>
 </div>
 
 <label id="quantityLabel">预约时长</label>
+
 <select id="quantity" onchange="calculate()">
 <option value="1">1小时</option>
 <option value="2">2小时</option>
@@ -79,6 +153,7 @@ footer{text-align:center;color:#aaa;font-size:11px;padding:20px}
 </select>
 
 <label>预约时间</label>
+
 <select id="timing">
 <option>尽快安排</option>
 <option>今天晚上</option>
@@ -92,7 +167,10 @@ footer{text-align:center;color:#aaa;font-size:11px;padding:20px}
 <label>订单金额</label>
 <div class="price" id="price">¥33</div>
 
-<button class="primary" onclick="submitOrder()">提交订单</button>
+<button id="submitButton" class="primary" type="button" onclick="submitOrder()">
+提交订单
+</button>
+
 <div id="message"></div>
 </div>
 
@@ -107,17 +185,35 @@ footer{text-align:center;color:#aaa;font-size:11px;padding:20px}
 
 <div class="card">
 <h3 class="title">🔐 管理员入口</h3>
+
 <div id="loginBox">
+
 <label>管理员邮箱</label>
 <input id="email" type="email" placeholder="管理员邮箱">
+
 <label>登录密码</label>
 <input id="password" type="password" placeholder="管理员密码">
-<button class="primary" onclick="login()">管理员登录</button>
+
+<button class="primary" type="button" onclick="login()">
+管理员登录
+</button>
+
+<div id="loginMessage"></div>
 </div>
 
 <div id="adminBox" class="hidden">
-<p>管理员后台 <button class="secondary" onclick="logout()">退出登录</button></p>
+
+<p>
+<b>管理员后台</b>
+<button class="secondary" type="button" onclick="logout()">退出登录</button>
+</p>
+
+<button class="secondary" type="button" onclick="loadOrders()">
+刷新订单
+</button>
+
 <div id="orders">正在加载订单...</div>
+
 </div>
 </div>
 
@@ -126,65 +222,549 @@ footer{text-align:center;color:#aaa;font-size:11px;padding:20px}
 <footer>白桃电竞俱乐部 · 感谢每一位老板的信任</footer>
 
 <script>
+/* =========================
+   1. Supabase 配置
+========================= */
+
 const SUPABASE_URL = 'https://cdjospnktexteqyqvgzb.supabase.co';
+
 const SUPABASE_KEY = 'sb_publishable_pLVz9K1xFEuiUGOkWmr1pw_dg-tU5N8';
 
-const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
+let db = null;
 let selectedService = '娱乐陪玩';
 let currentUser = null;
 
+
+/* =========================
+   2. 数据库连接
+========================= */
+
+function getDB(){
+
+ if(db){
+  return db;
+ }
+
+ if(!window.supabase || !window.supabase.createClient){
+  throw new Error('数据库组件加载失败，请检查网络后刷新网页。');
+ }
+
+ db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+ );
+
+ return db;
+}
+
+
+/* =========================
+   3. 页面错误提示
+========================= */
+
+function showSystemError(message){
+
+ const box = document.getElementById('systemMessage');
+
+ box.style.display = 'block';
+ box.innerText = message;
+}
+
+
+/* =========================
+   4. 选择服务
+========================= */
+
 function chooseService(service,el){
- selectedService=service;
- document.querySelectorAll('.service').forEach(x=>x.classList.remove('active'));
+
+ selectedService = service;
+
+ document.querySelectorAll('.service').forEach(function(item){
+  item.classList.remove('active');
+ });
+
  el.classList.add('active');
 
- const q=document.getElementById('quantity');
- const label=document.getElementById('quantityLabel');
+ const quantity = document.getElementById('quantity');
+ const label = document.getElementById('quantityLabel');
 
- if(service==='护航服务'){
-  q.innerHTML='<option value="1">1单</option>';
-  label.innerText='护航数量';
+ if(service === '护航服务'){
+
+  quantity.innerHTML = '<option value="1">1单</option>';
+
+  label.innerText = '护航数量';
+
  }else{
-  q.innerHTML='';
+
+  quantity.innerHTML = '';
+
   for(let i=1;i<=5;i++){
-   q.innerHTML+=`<option value="${i}">${i}小时</option>`;
+
+   quantity.innerHTML +=
+    '<option value="'+i+'">'+i+'小时</option>';
+
   }
-  label.innerText='预约时长';
+
+  label.innerText = '预约时长';
  }
+
  calculate();
 }
 
+
+/* =========================
+   5. 计算金额
+========================= */
+
 function calculate(){
- const q=Number(document.getElementById('quantity').value);
- const unit=selectedService==='娱乐陪玩'?33:selectedService==='技术陪玩'?44:99;
- document.getElementById('price').innerText='¥'+unit*q;
+
+ const quantity = Number(
+  document.getElementById('quantity').value
+ );
+
+ let unit = 33;
+
+ if(selectedService === '技术陪玩'){
+  unit = 44;
+ }
+
+ if(selectedService === '护航服务'){
+  unit = 99;
+ }
+
+ document.getElementById('price').innerText =
+  '¥'+unit*quantity;
 }
 
-/* 修改后的订单提交函数 */
-async function submitOrder(){
- const nickname=document.getElementById('nickname').value.trim();
- const gameid=document.getElementById('gameid').value.trim();
- const quantity=Number(document.getElementById('quantity').value);
- const timing=document.getElementById('timing').value;
- const note=document.getElementById('note').value.trim();
- const msg=document.getElementById('message');
- const btn=document.querySelector('button[onclick="submitOrder()"]');
 
- if(!nickname||!gameid){
-  msg.style.color='red';
-  msg.innerText='请填写称呼和游戏 ID。';
+/* =========================
+   6. 提交订单
+========================= */
+
+async function submitOrder(){
+
+ const nickname =
+  document.getElementById('nickname').value.trim();
+
+ const gameid =
+  document.getElementById('gameid').value.trim();
+
+ const quantity =
+  Number(document.getElementById('quantity').value);
+
+ const timing =
+  document.getElementById('timing').value;
+
+ const note =
+  document.getElementById('note').value.trim();
+
+ const message =
+  document.getElementById('message');
+
+ const button =
+  document.getElementById('submitButton');
+
+
+ // 检查必填内容
+
+ if(!nickname || !gameid){
+
+  message.style.color = 'red';
+
+  message.innerText = '请填写称呼和游戏 ID。';
+
   return;
  }
 
- btn.disabled=true;
- btn.innerText='正在提交...';
- msg.style.color='#888';
- msg.innerText='正在提交订单...';
+
+ button.disabled = true;
+ button.innerText = '正在提交...';
+
+ message.style.color = '#888';
+ message.innerText = '正在提交订单，请稍候...';
+
 
  try{
-  const request=db.rpc('create_public_order',{
-   p_nickname:nickname,
-   p_game_id:gameid,
-   p_service:selectedService,
-   p_quantity
+
+  const client = getDB();
+
+  const {data,error} = await client.rpc(
+   'create_public_order',
+   {
+    p_nickname: nickname,
+    p_game_id: gameid,
+    p_service: selectedService,
+    p_quantity: quantity,
+    p_timing: timing,
+    p_note: note
+   }
+  );
+
+  if(error){
+   throw new Error(error.message);
+  }
+
+  const result = Array.isArray(data) ? data[0] : data;
+
+  if(!result || !result.order_no){
+   throw new Error('数据库没有返回有效订单信息。');
+  }
+
+  message.style.color = '#d45c91';
+
+  message.innerHTML =
+   '订单提交成功！<br>'+
+   '订单编号：'+escapeHTML(result.order_no)+'<br>'+
+   '服务：'+escapeHTML(result.service)+'<br>'+
+   '金额：¥'+escapeHTML(result.amount)+'<br>'+
+   '请等待客服确认。';
+
+  document.getElementById('nickname').value = '';
+  document.getElementById('gameid').value = '';
+  document.getElementById('note').value = '';
+
+ }catch(error){
+
+  message.style.color = 'red';
+
+  message.innerText = '提交失败：'+error.message;
+
+ }finally{
+
+  button.disabled = false;
+  button.innerText = '提交订单';
+
+ }
+
+}
+
+
+/* =========================
+   7. 管理员登录
+========================= */
+
+async function login(){
+
+ const email =
+  document.getElementById('email').value.trim();
+
+ const password =
+  document.getElementById('password').value;
+
+ const message =
+  document.getElementById('loginMessage');
+
+ if(!email || !password){
+
+  message.style.color = 'red';
+  message.innerText = '请输入管理员邮箱和密码。';
+
+  return;
+ }
+
+ message.style.color = '#888';
+ message.innerText = '正在登录...';
+
+ try{
+
+  const client = getDB();
+
+  const {data,error} =
+   await client.auth.signInWithPassword({
+    email: email,
+    password: password
+   });
+
+  if(error){
+   throw error;
+  }
+
+  currentUser = data.user;
+
+  document.getElementById('loginBox').classList.add('hidden');
+
+  document.getElementById('adminBox').classList.remove('hidden');
+
+  loadOrders();
+
+ }catch(error){
+
+  message.style.color = 'red';
+
+  message.innerText = '登录失败：'+error.message;
+
+ }
+
+}
+
+
+/* =========================
+   8. 管理员退出
+========================= */
+
+async function logout(){
+
+ try{
+
+  const client = getDB();
+
+  await client.auth.signOut();
+
+ }catch(error){
+
+  console.error(error);
+
+ }
+
+ currentUser = null;
+
+ document.getElementById('adminBox').classList.add('hidden');
+
+ document.getElementById('loginBox').classList.remove('hidden');
+
+ document.getElementById('loginMessage').innerText = '';
+
+}
+
+
+/* =========================
+   9. HTML 安全处理
+========================= */
+
+function escapeHTML(value){
+
+ return String(value ?? '').replace(/[&<>"']/g,function(char){
+
+  return {
+   '&':'&amp;',
+   '<':'&lt;',
+   '>':'&gt;',
+   '"':'&quot;',
+   "'":'&#39;'
+  }[char];
+
+ });
+
+}
+
+
+/* =========================
+   10. 后台加载订单
+========================= */
+
+async function loadOrders(){
+
+ const box = document.getElementById('orders');
+
+ box.innerHTML = '正在加载订单...';
+
+ try{
+
+  const client = getDB();
+
+  const {data,error} = await client
+   .from('orders')
+   .select('*')
+   .order('created_at',{ascending:false});
+
+  if(error){
+   throw error;
+  }
+
+  if(!data || data.length === 0){
+
+   box.innerHTML = '目前还没有订单。';
+
+   return;
+  }
+
+  box.innerHTML = '';
+
+  data.forEach(function(order){
+
+   const item = document.createElement('div');
+
+   item.className = 'order';
+
+   item.innerHTML =
+
+    '<strong>订单编号：</strong>'+
+    escapeHTML(order.order_no)+'<br>'+
+
+    '<strong>老板：</strong>'+
+    escapeHTML(order.nickname)+'<br>'+
+
+    '<strong>游戏 ID：</strong>'+
+    escapeHTML(order.game_id)+'<br>'+
+
+    '<strong>服务：</strong>'+
+    escapeHTML(order.service)+'<br>'+
+
+    '<strong>数量：</strong>'+
+    escapeHTML(order.quantity)+'<br>'+
+
+    '<strong>金额：</strong>¥'+
+    escapeHTML(order.amount)+'<br>'+
+
+    '<strong>预约时间：</strong>'+
+    escapeHTML(order.timing)+'<br>'+
+
+    '<strong>备注：</strong>'+
+    escapeHTML(order.note || '无')+'<br>'+
+
+    '<strong>打手：</strong>'+
+    escapeHTML(order.worker_name || '暂未分配')+'<br>'+
+
+    '<strong>状态：</strong>'+
+    '<span class="status">'+
+    escapeHTML(order.status)+'</span>'+
+
+    '<label>填写打手名称</label>'+
+
+    '<input id="worker_'+escapeHTML(order.id)+'" '+
+    'placeholder="填写打手名称" '+
+    'value="'+escapeHTML(order.worker_name || '')+'">'+
+
+    '<div class="admin-actions">'+
+
+    '<button class="secondary" type="button" '+
+    'onclick="updateOrder(\''+escapeHTML(order.id)+'\',\'已接单\')">'+
+    '接单</button>'+
+
+    '<button class="secondary" type="button" '+
+    'onclick="assignWorker(\''+escapeHTML(order.id)+'\')">'+
+    '分配打手</button>'+
+
+    '<button class="secondary" type="button" '+
+    'onclick="updateOrder(\''+escapeHTML(order.id)+'\',\'已完成\')">'+
+    '完成</button>'+
+
+    '</div>';
+
+   box.appendChild(item);
+
+  });
+
+ }catch(error){
+
+  box.innerHTML =
+   '<span style="color:red">订单加载失败：'+
+   escapeHTML(error.message)+'</span>';
+
+ }
+
+}
+
+
+/* =========================
+   11. 修改订单状态
+========================= */
+
+async function updateOrder(id,status){
+
+ if(!currentUser){
+
+  alert('请先登录管理员账号。');
+
+  return;
+ }
+
+ try{
+
+  const client = getDB();
+
+  const {error} = await client
+   .from('orders')
+   .update({status:status})
+   .eq('id',id);
+
+  if(error){
+   throw error;
+  }
+
+  alert('订单状态已更新。');
+
+  loadOrders();
+
+ }catch(error){
+
+  alert('更新失败：'+error.message);
+
+ }
+
+}
+
+
+/* =========================
+   12. 分配打手
+========================= */
+
+async function assignWorker(id){
+
+ if(!currentUser){
+
+  alert('请先登录管理员账号。');
+
+  return;
+ }
+
+ const input = document.getElementById('worker_'+id);
+
+ const workerName = input.value.trim();
+
+ if(!workerName){
+
+  alert('请先填写打手名称。');
+
+  return;
+ }
+
+ try{
+
+  const client = getDB();
+
+  const {error} = await client
+   .from('orders')
+   .update({worker_name:workerName})
+   .eq('id',id);
+
+  if(error){
+   throw error;
+  }
+
+  alert('打手分配成功。');
+
+  loadOrders();
+
+ }catch(error){
+
+  alert('分配失败：'+error.message);
+
+ }
+
+}
+
+
+/* =========================
+   13. 页面初始化
+========================= */
+
+document.addEventListener('DOMContentLoaded',function(){
+
+ calculate();
+
+ try{
+
+  getDB();
+
+ }catch(error){
+
+  showSystemError(error.message);
+
+ }
+
+});
+</script>
+
+</body>
+</html>
