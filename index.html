@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>白桃电竞 - 俱乐部下单</title>
 
-<!-- 已更换为你测试成功的备用 CDN -->
 <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
 <style>
@@ -339,11 +338,8 @@ footer{
 <label>选择支付方式</label>
 
 <div class="payment-methods">
-
 <button id="wechatButton" type="button">微信支付</button>
-
 <button id="alipayButton" type="button">支付宝</button>
-
 </div>
 
 <img id="paymentQR" class="payment-qr hidden" alt="收款二维码">
@@ -357,7 +353,6 @@ footer{
 </button>
 
 <div id="paymentMessage"></div>
-
 <div id="paymentStatus" class="payment-status"></div>
 
 </div>
@@ -420,9 +415,7 @@ footer{
 
 <script>
 
-/* =========================
-   1. Supabase 配置
-========================= */
+/* 1. Supabase 配置 */
 
 const SUPABASE_URL =
 'https://cdjospnktexteqyqvgzb.supabase.co';
@@ -444,19 +437,14 @@ let currentPaymentMethod = null;
 let currentOrderAmount = 0;
 let paymentQrReady = false;
 
-
-/* =========================
-   2. 数据库连接
-========================= */
+/* 2. 数据库连接：仅管理员功能使用 */
 
 function getDB(){
 
- if(db){
-  return db;
- }
+ if(db) return db;
 
  if(!window.supabase || !window.supabase.createClient){
-  throw new Error('数据库组件加载失败，请检查网络后刷新网页。');
+  throw new Error('管理员数据库组件加载失败，请刷新网页。');
  }
 
  db = window.supabase.createClient(
@@ -467,23 +455,41 @@ function getDB(){
  return db;
 }
 
+/* 3. 通用中转接口 */
 
-/* =========================
-   3. 页面错误提示
-========================= */
+async function callNetlifyFunction(path,body){
 
-function showSystemError(message){
+ const response = await fetch(
+  '/.netlify/functions/' + path,
+  {
+   method:'POST',
+   headers:{
+    'Content-Type':'application/json'
+   },
+   body:JSON.stringify(body)
+  }
+ );
 
- const box = document.getElementById('systemMessage');
+ const text = await response.text();
 
- box.style.display = 'block';
- box.innerText = message;
+ let result;
+
+ try{
+  result = JSON.parse(text);
+ }catch{
+  throw new Error('服务器返回内容无法识别：'+text.slice(0,200));
+ }
+
+ if(!response.ok || !result.success){
+  throw new Error(
+   result.message || '服务器请求失败，状态码：'+response.status
+  );
+ }
+
+ return result.data;
 }
 
-
-/* =========================
-   4. 选择服务
-========================= */
+/* 4. 选择服务 */
 
 function chooseService(service,el){
 
@@ -508,14 +514,10 @@ function chooseService(service,el){
   quantity.innerHTML = '';
 
   for(let i=1;i<=5;i++){
-
-   quantity.innerHTML +=
-    '<option value="'+i+'">'+i+'小时</option>';
-
+   quantity.innerHTML += '<option value="'+i+'">'+i+'小时</option>';
   }
 
   label.innerText = '预约时长';
-
  }
 
  quantity.value = '1';
@@ -523,35 +525,21 @@ function chooseService(service,el){
  calculate();
 }
 
-
-/* =========================
-   5. 计算金额
-========================= */
+/* 5. 计算金额 */
 
 function calculate(){
 
- const quantityElement =
-  document.getElementById('quantity');
+ const quantityElement = document.getElementById('quantity');
+ const priceElement = document.getElementById('price');
 
- const priceElement =
-  document.getElementById('price');
+ if(!quantityElement || !priceElement) return 0;
 
- if(!quantityElement || !priceElement){
-  return 0;
- }
-
- const quantity =
-  Number(quantityElement.value) || 1;
+ const quantity = Number(quantityElement.value) || 1;
 
  let unit = 33;
 
- if(selectedService === '技术陪玩'){
-  unit = 44;
- }
-
- if(selectedService === '护航服务'){
-  unit = 99;
- }
+ if(selectedService === '技术陪玩') unit = 44;
+ if(selectedService === '护航服务') unit = 99;
 
  const total = unit * quantity;
 
@@ -560,53 +548,32 @@ function calculate(){
  return total;
 }
 
-
-/* =========================
-   6. 提交订单
-========================= */
+/* 6. 提交订单：改为 Netlify 中转 */
 
 async function submitOrder(){
 
- const nickname =
-  document.getElementById('nickname').value.trim();
+ const nickname = document.getElementById('nickname').value.trim();
+ const gameid = document.getElementById('gameid').value.trim();
+ const quantity = Number(document.getElementById('quantity').value);
+ const timing = document.getElementById('timing').value;
+ const note = document.getElementById('note').value.trim();
 
- const gameid =
-  document.getElementById('gameid').value.trim();
-
- const quantity =
-  Number(document.getElementById('quantity').value);
-
- const timing =
-  document.getElementById('timing').value;
-
- const note =
-  document.getElementById('note').value.trim();
-
- const message =
-  document.getElementById('message');
-
- const button =
-  document.getElementById('submitButton');
+ const message = document.getElementById('message');
+ const button = document.getElementById('submitButton');
 
  if(!nickname || !gameid){
-
   message.style.color = 'red';
   message.innerText = '请填写称呼和游戏 ID。';
-
   return;
  }
 
  if(!Number.isInteger(quantity) || quantity < 1 || quantity > 5){
-
   message.style.color = 'red';
   message.innerText = '预约数量不正确，请重新选择。';
-
   return;
  }
 
- if(button.disabled){
-  return;
- }
+ if(button.disabled) return;
 
  button.disabled = true;
  button.innerText = '正在提交...';
@@ -623,28 +590,20 @@ async function submitOrder(){
 
  try{
 
-  const client = getDB();
-
-  const {data,error} = await client.rpc(
-   'create_public_order',
+  const result = await callNetlifyFunction(
+   'create-order',
    {
-    p_nickname: nickname,
-    p_game_id: gameid,
-    p_service: selectedService,
-    p_quantity: quantity,
-    p_timing: timing,
-    p_note: note
+    nickname:nickname,
+    game_id:gameid,
+    service:selectedService,
+    quantity:quantity,
+    timing:timing,
+    note:note
    }
   );
 
-  if(error){
-   throw new Error(error.message);
-  }
-
-  const result = Array.isArray(data) ? data[0] : data;
-
   if(!result || !result.order_no){
-   throw new Error('数据库没有返回有效订单信息。');
+   throw new Error('服务器没有返回有效订单信息。');
   }
 
   const amount = Number(result.amount);
@@ -704,7 +663,7 @@ async function submitOrder(){
 
   message.innerText =
    '提交失败：'+(error.message || '未知错误')+
-   '。如果一直出现 Load Failed，请勿连续重复提交，先检查后台订单。';
+   '。如果不确定是否创建成功，请先检查后台订单，不要连续重复提交。';
 
  }finally{
 
@@ -714,25 +673,18 @@ async function submitOrder(){
  }
 }
 
-
-/* =========================
-   7. 选择付款方式
-========================= */
+/* 7. 选择付款方式 */
 
 function choosePayment(method){
 
  if(!currentOrderNo){
-
   alert('请先提交订单。');
   return;
-
  }
 
  if(document.getElementById('paidButton').disabled === false){
-
   alert('当前订单已经提交过付款申请，请等待客服核实。');
   return;
-
  }
 
  currentPaymentMethod = method;
@@ -763,9 +715,7 @@ function choosePayment(method){
  qr.onload = function(){
 
   paymentQrReady = true;
-
   qr.classList.remove('hidden');
-
   paidButton.disabled = false;
 
   tip.innerText =
@@ -776,9 +726,7 @@ function choosePayment(method){
  qr.onerror = function(){
 
   paymentQrReady = false;
-
   qr.classList.add('hidden');
-
   paidButton.disabled = true;
 
   tip.innerText = '二维码加载失败，请联系客服处理。';
@@ -789,32 +737,23 @@ function choosePayment(method){
 
 }
 
-
-/* =========================
-   8. 老板提交付款申请
-========================= */
+/* 8. 老板提交付款申请：改为 Netlify 中转 */
 
 async function markPaid(){
 
  if(!currentOrderNo){
-
   alert('没有找到当前订单，请先提交订单。');
   return;
-
  }
 
  if(!currentPaymentMethod){
-
   alert('请先选择微信支付或支付宝。');
   return;
-
  }
 
  if(!paymentQrReady){
-
   alert('二维码尚未加载成功，请稍候再试。');
   return;
-
  }
 
  const button = document.getElementById('paidButton');
@@ -828,23 +767,13 @@ async function markPaid(){
 
  try{
 
-  const client = getDB();
-
-  const {data,error} = await client.rpc(
-   'mark_order_paid',
+  await callNetlifyFunction(
+   'mark-order-paid',
    {
-    p_order_no: currentOrderNo,
-    p_payment_method: currentPaymentMethod
+    order_no:currentOrderNo,
+    payment_method:currentPaymentMethod
    }
   );
-
-  if(error){
-   throw new Error(error.message);
-  }
-
-  if(data !== true){
-   throw new Error('数据库未确认付款申请，请联系客服处理。');
-  }
 
   message.style.color = '#d45c91';
   message.innerText = '付款申请提交成功，请等待客服核实到账。';
@@ -870,30 +799,19 @@ async function markPaid(){
  }
 }
 
-
-/* =========================
-   9. 管理员登录
-========================= */
+/* 9. 管理员登录 */
 
 async function adminLogin(){
 
- const email =
-  document.getElementById('email').value.trim();
+ const email = document.getElementById('email').value.trim();
+ const password = document.getElementById('password').value;
 
- const password =
-  document.getElementById('password').value;
-
- const message =
-  document.getElementById('loginMessage');
-
- const button =
-  document.getElementById('adminLoginButton');
+ const message = document.getElementById('loginMessage');
+ const button = document.getElementById('adminLoginButton');
 
  if(!email || !password){
-
   message.style.color = 'red';
   message.innerText = '请输入管理员邮箱和密码。';
-
   return;
  }
 
@@ -907,15 +825,12 @@ async function adminLogin(){
 
   const client = getDB();
 
-  const {data,error} =
-   await client.auth.signInWithPassword({
-    email:email,
-    password:password
-   });
+  const {data,error} = await client.auth.signInWithPassword({
+   email:email,
+   password:password
+  });
 
-  if(error){
-   throw error;
-  }
+  if(error) throw error;
 
   if(!data.user){
    throw new Error('登录成功，但没有获取到用户信息。');
@@ -943,23 +858,15 @@ async function adminLogin(){
  }
 }
 
-
-/* =========================
-   10. 管理员退出
-========================= */
+/* 10. 管理员退出 */
 
 async function logout(){
 
  try{
-
   const client = getDB();
-
   await client.auth.signOut();
-
  }catch(error){
-
   console.error(error);
-
  }
 
  currentUser = null;
@@ -970,10 +877,7 @@ async function logout(){
 
 }
 
-
-/* =========================
-   11. HTML 安全处理
-========================= */
+/* 11. HTML 安全处理 */
 
 function escapeHTML(value){
 
@@ -991,10 +895,7 @@ function escapeHTML(value){
 
 }
 
-
-/* =========================
-   12. 后台按钮创建
-========================= */
+/* 12. 后台按钮 */
 
 function createAdminButton(text,callback){
 
@@ -1010,10 +911,7 @@ function createAdminButton(text,callback){
 
 }
 
-
-/* =========================
-   13. 后台加载订单
-========================= */
+/* 13. 后台加载订单 */
 
 async function loadOrders(){
 
@@ -1034,15 +932,11 @@ async function loadOrders(){
    .select('*')
    .order('created_at',{ascending:false});
 
-  if(error){
-   throw error;
-  }
+  if(error) throw error;
 
   if(!data || data.length === 0){
-
    box.innerHTML = '目前还没有订单。';
    return;
-
   }
 
   box.innerHTML = '';
@@ -1050,7 +944,6 @@ async function loadOrders(){
   data.forEach(function(order){
 
    const item = document.createElement('div');
-
    item.className = 'order';
 
    const paymentStatus = order.payment_status || '待付款';
@@ -1059,13 +952,10 @@ async function loadOrders(){
    const addText = function(label,value){
 
     const strong = document.createElement('strong');
-
     strong.innerText = label + '：';
 
     item.appendChild(strong);
-
     item.appendChild(document.createTextNode(String(value ?? '')));
-
     item.appendChild(document.createElement('br'));
 
    };
@@ -1081,13 +971,10 @@ async function loadOrders(){
    addText('付款方式',paymentMethod);
 
    const paymentLabel = document.createElement('strong');
-
    paymentLabel.innerText = '付款状态：';
-
    item.appendChild(paymentLabel);
 
    const paymentSpan = document.createElement('span');
-
    paymentSpan.className = 'status';
    paymentSpan.innerText = paymentStatus;
 
@@ -1097,13 +984,10 @@ async function loadOrders(){
    addText('打手',order.worker_name || '暂未分配');
 
    const statusLabel = document.createElement('strong');
-
    statusLabel.innerText = '订单状态：';
-
    item.appendChild(statusLabel);
 
    const statusSpan = document.createElement('span');
-
    statusSpan.className = 'status';
    statusSpan.innerText = order.status || '未知';
 
@@ -1111,29 +995,23 @@ async function loadOrders(){
    item.appendChild(document.createElement('br'));
 
    const workerLabel = document.createElement('label');
-
    workerLabel.innerText = '填写打手名称';
-
    item.appendChild(workerLabel);
 
    const workerInput = document.createElement('input');
-
    workerInput.placeholder = '填写打手名称';
    workerInput.value = order.worker_name || '';
 
    item.appendChild(workerInput);
 
    const actions = document.createElement('div');
-
    actions.className = 'admin-actions';
 
    if(paymentStatus === '待核实'){
 
     actions.appendChild(
      createAdminButton('确认收款',function(){
-
       confirmPayment(order.id);
-
      })
     );
 
@@ -1141,30 +1019,23 @@ async function loadOrders(){
 
    actions.appendChild(
     createAdminButton('接单',function(){
-
      updateOrder(order.id,'已接单');
-
     })
    );
 
    actions.appendChild(
     createAdminButton('分配打手',function(){
-
      assignWorker(order.id,workerInput.value);
-
     })
    );
 
    actions.appendChild(
     createAdminButton('完成',function(){
-
      updateOrder(order.id,'已完成');
-
     })
    );
 
    item.appendChild(actions);
-
    box.appendChild(item);
 
   });
@@ -1179,27 +1050,20 @@ async function loadOrders(){
 
 }
 
-
-/* =========================
-   14. 管理员确认收款
-========================= */
+/* 14. 管理员确认收款 */
 
 async function confirmPayment(id){
 
  if(!currentUser){
-
   alert('请先登录管理员账号。');
   return;
-
  }
 
  const confirmed = confirm(
   '请确认已经在微信或支付宝实际收到这笔订单的款项。确认后将标记为已付款。'
  );
 
- if(!confirmed){
-  return;
- }
+ if(!confirmed) return;
 
  try{
 
@@ -1214,14 +1078,10 @@ async function confirmPayment(id){
    .eq('payment_status','待核实')
    .select('id');
 
-  if(error){
-   throw error;
-  }
+  if(error) throw error;
 
   if(!data || data.length === 0){
-
    throw new Error('没有更新任何订单。订单可能已被处理，或数据库权限不允许此次操作。');
-
   }
 
   alert('收款状态已更新。');
@@ -1236,18 +1096,13 @@ async function confirmPayment(id){
 
 }
 
-
-/* =========================
-   15. 修改订单状态
-========================= */
+/* 15. 修改订单状态 */
 
 async function updateOrder(id,status){
 
  if(!currentUser){
-
   alert('请先登录管理员账号。');
   return;
-
  }
 
  try{
@@ -1262,14 +1117,10 @@ async function updateOrder(id,status){
    .eq('id',id)
    .select('id');
 
-  if(error){
-   throw error;
-  }
+  if(error) throw error;
 
   if(!data || data.length === 0){
-
    throw new Error('没有更新任何订单，请检查数据库权限。');
-
   }
 
   alert('订单状态已更新。');
@@ -1284,27 +1135,20 @@ async function updateOrder(id,status){
 
 }
 
-
-/* =========================
-   16. 分配打手
-========================= */
+/* 16. 分配打手 */
 
 async function assignWorker(id,name){
 
  if(!currentUser){
-
   alert('请先登录管理员账号。');
   return;
-
  }
 
  const workerName = String(name || '').trim();
 
  if(!workerName){
-
   alert('请先填写打手名称。');
   return;
-
  }
 
  try{
@@ -1319,14 +1163,10 @@ async function assignWorker(id,name){
    .eq('id',id)
    .select('id');
 
-  if(error){
-   throw error;
-  }
+  if(error) throw error;
 
   if(!data || data.length === 0){
-
    throw new Error('没有更新任何订单，请检查数据库权限。');
-
   }
 
   alert('打手分配成功。');
@@ -1341,10 +1181,7 @@ async function assignWorker(id,name){
 
 }
 
-
-/* =========================
-   17. 页面初始化
-========================= */
+/* 17. 页面初始化 */
 
 document.addEventListener('DOMContentLoaded',function(){
 
@@ -1367,32 +1204,18 @@ document.addEventListener('DOMContentLoaded',function(){
 
  document.getElementById('wechatButton')
   .addEventListener('click',function(){
-
    choosePayment('微信支付');
-
   });
 
  document.getElementById('alipayButton')
   .addEventListener('click',function(){
-
    choosePayment('支付宝');
-
   });
 
  document.getElementById('paidButton')
   .addEventListener('click',markPaid);
 
  calculate();
-
- try{
-
-  getDB();
-
- }catch(error){
-
-  showSystemError(error.message);
-
- }
 
 });
 
