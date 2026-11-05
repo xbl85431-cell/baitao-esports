@@ -265,8 +265,6 @@ footer{
 
 <div id="systemMessage"></div>
 
-<!-- 下单区域 -->
-
 <div class="card">
 
 <h3 class="title">🎮 预约下单</h3>
@@ -331,8 +329,6 @@ footer{
 
 <div id="message"></div>
 
-<!-- 付款区域 -->
-
 <div id="paymentBox" class="hidden">
 
 <div class="payment-title">💳 订单支付</div>
@@ -343,13 +339,9 @@ footer{
 
 <div class="payment-methods">
 
-<button id="wechatButton" type="button">
-微信支付
-</button>
+<button id="wechatButton" type="button">微信支付</button>
 
-<button id="alipayButton" type="button">
-支付宝
-</button>
+<button id="alipayButton" type="button">支付宝</button>
 
 </div>
 
@@ -371,9 +363,6 @@ footer{
 
 </div>
 
-
-<!-- 下单须知 -->
-
 <div class="card">
 
 <h3 class="title">📌 下单须知</h3>
@@ -386,9 +375,6 @@ footer{
 </p>
 
 </div>
-
-
-<!-- 管理员入口 -->
 
 <div class="card">
 
@@ -409,7 +395,6 @@ footer{
 <div id="loginMessage"></div>
 
 </div>
-
 
 <div id="adminBox" class="hidden">
 
@@ -432,22 +417,25 @@ footer{
 
 <footer>白桃电竞俱乐部 · 感谢每一位老板的信任</footer>
 
-
 <script>
 
 /* =========================
    1. Supabase 配置
 ========================= */
 
+// 已根据你从 Supabase 后台复制的地址修正
 const SUPABASE_URL =
-'https://cdjospnktexteqyqvgqzb.supabase.co';
+'https://cdjospnktexteqyqvgzb.supabase.co';
 
+// 使用你提供的 Publishable Key
 const SUPABASE_KEY =
 'sb_publishable_pLVz9K1xFEuiUGOkWmr1pw_dg-tU5N8';
 
+// 微信收款二维码
 const WECHAT_QR =
 'https://raw.githubusercontent.com/xbl85431-cell/baitao-esports/main/IMG_4063.jpeg';
 
+// 支付宝收款二维码
 const ALIPAY_QR =
 'https://raw.githubusercontent.com/xbl85431-cell/baitao-esports/main/IMG_4064.jpeg';
 
@@ -512,9 +500,7 @@ function chooseService(service,el){
  selectedService = service;
 
  document.querySelectorAll('.service').forEach(function(item){
-
   item.classList.remove('active');
-
  });
 
  el.classList.add('active');
@@ -636,6 +622,10 @@ async function submitOrder(){
 
  }
 
+ if(button.disabled){
+  return;
+ }
+
  button.disabled = true;
 
  button.innerText = '正在提交...';
@@ -743,7 +733,9 @@ async function submitOrder(){
 
   message.style.color = 'red';
 
-  message.innerText = '提交失败：'+error.message;
+  message.innerText =
+   '提交失败：'+(error.message || '未知错误')+
+   '。如果一直出现 Load Failed，请勿连续重复提交，先检查后台订单。';
 
  }finally{
 
@@ -811,8 +803,6 @@ function choosePayment(method){
   alipayButton.classList.add('active');
 
  }
-
- // 先设置图片加载事件，再设置图片地址
 
  qr.onload = function(){
 
@@ -915,8 +905,6 @@ async function markPaid(){
    '付款状态：待核实';
 
   button.innerText = '已提交付款申请';
-
-  // 申请成功后禁止再次提交
 
   button.disabled = true;
 
@@ -1204,8 +1192,6 @@ async function loadOrders(){
 
    item.appendChild(document.createElement('br'));
 
-   // 填写打手名称
-
    const workerLabel = document.createElement('label');
 
    workerLabel.innerText = '填写打手名称';
@@ -1219,8 +1205,6 @@ async function loadOrders(){
    workerInput.value = order.worker_name || '';
 
    item.appendChild(workerInput);
-
-   // 后台操作按钮
 
    const actions = document.createElement('div');
 
