@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>白桃电竞 - 俱乐部下单</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f7f5f8;color:#29242d;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+header{background:linear-gradient(135deg,#f4a9c6,#e879a7);color:white;padding:30px 22px 26px;border-radius:0 0 25px 25px}
+header h1{margin:0;font-size:28px}
+header p{margin:9px 0 0;font-size:13px;opacity:.9}
+.container{padding:18px;max-width:600px;margin:auto}
+.card{background:white;border-radius:17px;padding:20px;margin-bottom:15px;box-shadow:0 3px 15px #00000008}
+.title{font-size:17px;font-weight:700;margin:0 0 16px}
+label{display:block;font-size:13px;color:#777;margin:13px 0 7px}
+input,select,textarea{width:100%;padding:13px;border:1px solid #eee;border-radius:10px;font-size:15px;background:#fff;color:#333}
+textarea{height:75px;resize:vertical}
+.services{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.service{border:1px solid #eee;border-radius:12px;padding:13px 5px;text-align:center;cursor:pointer}
+.service.active{border:2px solid #e879a7;background:#fff4f8;color:#d65389}
+.service b{display:block;font-size:16px;margin-bottom:5px}
+.service small{font-size:12px;color:#888}
+button{border:0;border-radius:11px;padding:14px;font-size:15px;font-weight:700;cursor:pointer}
+.primary{width:100%;background:#e879a7;color:white;margin-top:17px}
+.secondary{background:#f5e5ed;color:#bd527e}
+.price{font-size:27px;color:#df6396;font-weight:800}
+.muted{font-size:12px;color:#999;line-height:1.7}
+.hidden{display:none}
+.order{border:1px solid #f0e7ec;border-radius:12px;padding:13px;margin:10px 0}
+.order strong{font-size:14px}
+.status{color:#d45c91;font-size:12px}
+.admin-actions{display:flex;gap:8px;margin-top:10px}
+.admin-actions button{flex:1;font-size:12px;padding:10px}
+#message{font-size:13px;line-height:1.7;margin-top:12px}
+footer{text-align:center;color:#aaa;font-size:11px;padding:20px}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🍑 白桃电竞</h1>
+<p>认真对待每一份信任 · 稳定 · 真诚 · 高性价比</p>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h3 class="title">🎮 预约下单</h3>
+
+<label>老板怎么称呼？</label>
+<input id="nickname" placeholder="请输入您的称呼">
+
+<label>游戏 ID</label>
+<input id="gameid" placeholder="请输入您的三角洲游戏 ID">
+
+<label>选择服务</label>
+<div class="services">
+<div class="service active" onclick="chooseService('娱乐陪玩',this)">
+<b>娱乐陪玩</b><small>33元 / 小时</small>
+</div>
+<div class="service" onclick="chooseService('技术陪玩',this)">
+<b>技术陪玩</b><small>44元 / 小时</small>
+</div>
+<div class="service" onclick="chooseService('护航服务',this)">
+<b>护航服务</b><small>99元 / 单</small>
+</div>
+</div>
+
+<label id="quantityLabel">预约时长</label>
+<select id="quantity" onchange="calculate()">
+<option value="1">1小时</option>
+<option value="2">2小时</option>
+<option value="3">3小时</option>
+<option value="4">4小时</option>
+<option value="5">5小时</option>
+</select>
+
+<label>预约时间</label>
+<select id="timing">
+<option>尽快安排</option>
+<option>今天晚上</option>
+<option>明天</option>
+<option>与客服协商</option>
+</select>
+
+<label>备注（选填）</label>
+<textarea id="note" placeholder="有什么特殊要求可以写在这里"></textarea>
+
+<label>订单金额</label>
+<div class="price" id="price">¥33</div>
+
+<button class="primary" onclick="submitOrder()">提交订单</button>
+<div id="message"></div>
+</div>
+
+<div class="card">
+<h3 class="title">📌 下单须知</h3>
+<p class="muted">
+1. 提交订单后，请等待客服确认。<br>
+2. 具体安排以客服确认为准。<br>
+3. 如有特殊要求，请提前在备注中说明。
+</p>
+</div>
+
+<div class="card">
+<h3 class="title">🔐 管理员入口</h3>
+<div id="loginBox">
+<label>管理员邮箱</label>
+<input id="email" type="email" placeholder="管理员邮箱">
+<label>登录密码</label>
+<input id="password" type="password" placeholder="管理员密码">
+<button class="primary" onclick="login()">管理员登录</button>
+</div>
+
+<div id="adminBox" class="hidden">
+<p>管理员后台 <button class="secondary" onclick="logout()">退出登录</button></p>
+<div id="orders">正在加载订单...</div>
+</div>
+</div>
+
+</div>
+
+<footer>白桃电竞俱乐部 · 感谢每一位老板的信任</footer>
+
+<script>
+const SUPABASE_URL = 'https://cdjospnktexteqyqvgzb.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_pLVz9K1xFEuiUGOkWmr1pw_dg-tU5N8';
+
+const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let selectedService = '娱乐陪玩';
+let currentUser = null;
+
+function chooseService(service,el){
+ selectedService=service;
+ document.querySelectorAll('.service').forEach(x=>x.classList.remove('active'));
+ el.classList.add('active');
+
+ const q=document.getElementById('quantity');
+ const label=document.getElementById('quantityLabel');
+
+ if(service==='护航服务'){
+  q.innerHTML='<option value="1">1单</option>';
+  label.innerText='护航数量';
+ }else{
+  q.innerHTML='';
+  for(let i=1;i<=5;i++){
+   q.innerHTML+=`<option value="${i}">${i}小时</option>`;
+  }
+  label.innerText='预约时长';
+ }
+ calculate();
+}
+
+function calculate(){
+ const q=Number(document.getElementById('quantity').value);
+ const unit=selectedService==='娱乐陪玩'?33:selectedService==='技术陪玩'?44:99;
+ document.getElementById('price').innerText='¥'+unit*q;
+}
+
+async function submitOrder(){
+ const nickname=document.getElementById('nickname').value.trim();
+ const gameid=document.getElementById('gameid').value.trim();
+ const quantity=Number(document.getElementById('quantity').value);
+ const timing=document.getElementById('timing').value;
+ const note=document.getElementById('note').value.trim();
+ const msg=document.getElementById('message');
+
+ if(!nickname||!gameid){
+  msg.style.color='red';
+  msg.innerText='请填写称呼和游戏 ID。';
+  return;
+ }
+
+ msg.style.color='#888';
+ msg.innerText='正在提交订单...';
+
+ const {data,error}=await db.rpc('create_public_order',{
+  p_nickname:nickname,
+  p_game_id:gameid,
+  p_service:selectedService,
+  p_quantity:quantity,
+  p_timing:timing,
+  p_note:note
+ });
+
+ if(error){
+  msg.style.color='red';
+  msg.innerText='提交失败：'+error.message;
+  return;
+ }
+
+ const result=Array.isArray(data)?data[0]:data;
+
+ msg.style.color='#d45c91';
+ msg.innerHTML='订单提交成功！<br>订单编号：'+result.order_no+
+ '<br>服务：'+result.service+
+ '<br>金额：¥'+result.amount+
+ '<br>请等待客服确认。';
+
+ document.getElementById('nickname').value='';
+ document.getElementById('gameid').value='';
+ document.getElementById('note').value='';
+}
+
+async function login(){
+ const email=document.getElementById('email').value.trim();
+ const password=document.getElementById('password').value;
+
+ const {data,error}=await db.auth.signInWithPassword({email,password});
+
+ if(error){
+  alert('登录失败：'+error.message);
+  return;
+ }
+
+ currentUser=data.user;
+ document.getElementById('loginBox').classList.add('hidden');
+ document.getElementById('adminBox').classList.remove('hidden');
+ loadOrders();
+}
+
+async function logout(){
+ await db.auth.signOut();
+ currentUser=null;
+ document.getElementById('loginBox').classList.remove('hidden');
+ document.getElementById('adminBox').classList.add('hidden');
+}
+
+async function loadOrders(){
+ const box=document.getElementById('orders');
+ const {data,error}=await db.from('orders').select('*').order('created_at',{ascending:false});
+
+ if(error){
+  box.innerText='订单加载失败：'+error.message;
+  return;
+ }
+
+ if(!data.length){
+  box.innerText='目前还没有订单。';
+  return;
+ }
+
+ box.innerHTML=data.map(o=>`
+ <div class="order">
+ <strong>${escapeHTML(o.nickname)}</strong>
+ <span class="status"> ${escapeHTML(o.status)}</span>
+ <p class="muted">
+ 订单号：${escapeHTML(o.order_no)}<br>
+ 游戏ID：${escapeHTML(o.game_id)}<br>
+ 服务：${escapeHTML(o.service)}<br>
+ 数量：${o.quantity}<br>
+ 金额：¥${o.amount}<br>
+ 时间：${escapeHTML(o.timing)}<br>
+ 打手：${escapeHTML(o.worker_name||'暂未分配')}<br>
+ 备注：${escapeHTML(o.note||'无')}
+ </p>
+ <input id="worker-${o.id}" placeholder="填写打手名称" value="${escapeHTML(o.worker_name||'')}">
+ <div class="admin-actions">
+ <button class="secondary" onclick="updateOrder('${o.id}','已接单')">接单</button>
+ <button class="secondary" onclick="assignWorker('${o.id}')">分配打手</button>
+ <button class="secondary" onclick="updateOrder('${o.id}','已完成')">完成</button>
+ </div>
+ </div>`).join('');
+}
+
+function escapeHTML(value){
+ return String(value??'').replace(/[&<>"']/g,c=>({
+ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+ }[c]));
+}
+
+async function updateOrder(id,status){
+ const {error}=await db.from('orders').update({status}).eq('id',id);
+ if(error){alert('操作失败：'+error.message);return;}
+ loadOrders();
+}
+
+async function assignWorker(id){
+ const worker=document.getElementById('worker-'+id).value.trim();
+ if(!worker){alert('请填写打手名称');return;}
+ const {error}=await db.from('orders').update({worker_name:worker,status:'已分配'}).eq('id',id);
+ if(error){alert('分配失败：'+error.message);return;}
+ loadOrders();
+}
+
+db.auth.onAuthStateChange((event,session)=>{
+ if(session?.user){
+  currentUser=session.user;
+  document.getElementById('loginBox').classList.add('hidden');
+  document.getElementById('adminBox').classList.remove('hidden');
+  loadOrders();
+ }
+});
+
+db.channel('orders-changes')
+.on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>{
+ if(currentUser)loadOrders();
+})
+.subscribe();
+
+calculate();
+</script>
+</body>
+</html>
