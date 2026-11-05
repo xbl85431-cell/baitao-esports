@@ -23,6 +23,7 @@ textarea{height:75px;resize:vertical}
 .service b{display:block;font-size:16px;margin-bottom:5px}
 .service small{font-size:12px;color:#888}
 button{border:0;border-radius:11px;padding:14px;font-size:15px;font-weight:700;cursor:pointer}
+button:disabled{opacity:.6;cursor:not-allowed}
 .primary{width:100%;background:#e879a7;color:white;margin-top:17px}
 .secondary{background:#f5e5ed;color:#bd527e}
 .price{font-size:27px;color:#df6396;font-weight:800}
@@ -160,6 +161,7 @@ function calculate(){
  document.getElementById('price').innerText='¥'+unit*q;
 }
 
+/* 修改后的订单提交函数 */
 async function submitOrder(){
  const nickname=document.getElementById('nickname').value.trim();
  const gameid=document.getElementById('gameid').value.trim();
@@ -167,6 +169,7 @@ async function submitOrder(){
  const timing=document.getElementById('timing').value;
  const note=document.getElementById('note').value.trim();
  const msg=document.getElementById('message');
+ const btn=document.querySelector('button[onclick="submitOrder()"]');
 
  if(!nickname||!gameid){
   msg.style.color='red';
@@ -174,134 +177,14 @@ async function submitOrder(){
   return;
  }
 
+ btn.disabled=true;
+ btn.innerText='正在提交...';
  msg.style.color='#888';
  msg.innerText='正在提交订单...';
 
- const {data,error}=await db.rpc('create_public_order',{
-  p_nickname:nickname,
-  p_game_id:gameid,
-  p_service:selectedService,
-  p_quantity:quantity,
-  p_timing:timing,
-  p_note:note
- });
-
- if(error){
-  msg.style.color='red';
-  msg.innerText='提交失败：'+error.message;
-  return;
- }
-
- const result=Array.isArray(data)?data[0]:data;
-
- msg.style.color='#d45c91';
- msg.innerHTML='订单提交成功！<br>订单编号：'+result.order_no+
- '<br>服务：'+result.service+
- '<br>金额：¥'+result.amount+
- '<br>请等待客服确认。';
-
- document.getElementById('nickname').value='';
- document.getElementById('gameid').value='';
- document.getElementById('note').value='';
-}
-
-async function login(){
- const email=document.getElementById('email').value.trim();
- const password=document.getElementById('password').value;
-
- const {data,error}=await db.auth.signInWithPassword({email,password});
-
- if(error){
-  alert('登录失败：'+error.message);
-  return;
- }
-
- currentUser=data.user;
- document.getElementById('loginBox').classList.add('hidden');
- document.getElementById('adminBox').classList.remove('hidden');
- loadOrders();
-}
-
-async function logout(){
- await db.auth.signOut();
- currentUser=null;
- document.getElementById('loginBox').classList.remove('hidden');
- document.getElementById('adminBox').classList.add('hidden');
-}
-
-async function loadOrders(){
- const box=document.getElementById('orders');
- const {data,error}=await db.from('orders').select('*').order('created_at',{ascending:false});
-
- if(error){
-  box.innerText='订单加载失败：'+error.message;
-  return;
- }
-
- if(!data.length){
-  box.innerText='目前还没有订单。';
-  return;
- }
-
- box.innerHTML=data.map(o=>`
- <div class="order">
- <strong>${escapeHTML(o.nickname)}</strong>
- <span class="status"> ${escapeHTML(o.status)}</span>
- <p class="muted">
- 订单号：${escapeHTML(o.order_no)}<br>
- 游戏ID：${escapeHTML(o.game_id)}<br>
- 服务：${escapeHTML(o.service)}<br>
- 数量：${o.quantity}<br>
- 金额：¥${o.amount}<br>
- 时间：${escapeHTML(o.timing)}<br>
- 打手：${escapeHTML(o.worker_name||'暂未分配')}<br>
- 备注：${escapeHTML(o.note||'无')}
- </p>
- <input id="worker-${o.id}" placeholder="填写打手名称" value="${escapeHTML(o.worker_name||'')}">
- <div class="admin-actions">
- <button class="secondary" onclick="updateOrder('${o.id}','已接单')">接单</button>
- <button class="secondary" onclick="assignWorker('${o.id}')">分配打手</button>
- <button class="secondary" onclick="updateOrder('${o.id}','已完成')">完成</button>
- </div>
- </div>`).join('');
-}
-
-function escapeHTML(value){
- return String(value??'').replace(/[&<>"']/g,c=>({
- '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
- }[c]));
-}
-
-async function updateOrder(id,status){
- const {error}=await db.from('orders').update({status}).eq('id',id);
- if(error){alert('操作失败：'+error.message);return;}
- loadOrders();
-}
-
-async function assignWorker(id){
- const worker=document.getElementById('worker-'+id).value.trim();
- if(!worker){alert('请填写打手名称');return;}
- const {error}=await db.from('orders').update({worker_name:worker,status:'已分配'}).eq('id',id);
- if(error){alert('分配失败：'+error.message);return;}
- loadOrders();
-}
-
-db.auth.onAuthStateChange((event,session)=>{
- if(session?.user){
-  currentUser=session.user;
-  document.getElementById('loginBox').classList.add('hidden');
-  document.getElementById('adminBox').classList.remove('hidden');
-  loadOrders();
- }
-});
-
-db.channel('orders-changes')
-.on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>{
- if(currentUser)loadOrders();
-})
-.subscribe();
-
-calculate();
-</script>
-</body>
-</html>
+ try{
+  const request=db.rpc('create_public_order',{
+   p_nickname:nickname,
+   p_game_id:gameid,
+   p_service:selectedService,
+   p_quantity
