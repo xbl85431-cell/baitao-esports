@@ -88,7 +88,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .status{color:#d45c91;font-size:12px}
 .admin-actions{display:flex;gap:8px;margin-top:10px}
 .admin-actions button{flex:1;font-size:12px;padding:10px}
-#message{font-size:13px;line-height:1.8;margin-top:12px}
+#message,#loginMessage{font-size:13px;line-height:1.8;margin-top:12px}
 #systemMessage{
  background:#fff4f4;
  color:#c33;
@@ -144,7 +144,7 @@ footer{text-align:center;color:#aaa;font-size:11px;padding:20px}
 
 <label id="quantityLabel">预约时长</label>
 
-<select id="quantity" onchange="calculate()">
+<select id="quantity">
 <option value="1">1小时</option>
 <option value="2">2小时</option>
 <option value="3">3小时</option>
@@ -167,7 +167,7 @@ footer{text-align:center;color:#aaa;font-size:11px;padding:20px}
 <label>订单金额</label>
 <div class="price" id="price">¥33</div>
 
-<button id="submitButton" class="primary" type="button" onclick="submitOrder()">
+<button id="submitButton" class="primary" type="button">
 提交订单
 </button>
 
@@ -194,7 +194,7 @@ footer{text-align:center;color:#aaa;font-size:11px;padding:20px}
 <label>登录密码</label>
 <input id="password" type="password" placeholder="管理员密码">
 
-<button class="primary" type="button" onclick="login()">
+<button id="adminLoginButton" class="primary" type="button">
 管理员登录
 </button>
 
@@ -308,6 +308,8 @@ function chooseService(service,el){
   label.innerText = '预约时长';
  }
 
+ quantity.value = '1';
+
  calculate();
 }
 
@@ -318,9 +320,14 @@ function chooseService(service,el){
 
 function calculate(){
 
- const quantity = Number(
-  document.getElementById('quantity').value
- );
+ const quantityElement = document.getElementById('quantity');
+ const priceElement = document.getElementById('price');
+
+ if(!quantityElement || !priceElement){
+  return 0;
+ }
+
+ const quantity = Number(quantityElement.value) || 1;
 
  let unit = 33;
 
@@ -332,8 +339,11 @@ function calculate(){
   unit = 99;
  }
 
- document.getElementById('price').innerText =
-  '¥'+unit*quantity;
+ const total = unit * quantity;
+
+ priceElement.innerText = '¥' + total;
+
+ return total;
 }
 
 
@@ -364,25 +374,21 @@ async function submitOrder(){
  const button =
   document.getElementById('submitButton');
 
-
- // 检查必填内容
-
  if(!nickname || !gameid){
 
   message.style.color = 'red';
-
   message.innerText = '请填写称呼和游戏 ID。';
 
   return;
  }
 
+ const frontEndAmount = calculate();
 
  button.disabled = true;
  button.innerText = '正在提交...';
 
  message.style.color = '#888';
  message.innerText = '正在提交订单，请稍候...';
-
 
  try{
 
@@ -426,7 +432,6 @@ async function submitOrder(){
  }catch(error){
 
   message.style.color = 'red';
-
   message.innerText = '提交失败：'+error.message;
 
  }finally{
@@ -443,7 +448,7 @@ async function submitOrder(){
    7. 管理员登录
 ========================= */
 
-async function login(){
+async function adminLogin(){
 
  const email =
   document.getElementById('email').value.trim();
@@ -454,6 +459,9 @@ async function login(){
  const message =
   document.getElementById('loginMessage');
 
+ const button =
+  document.getElementById('adminLoginButton');
+
  if(!email || !password){
 
   message.style.color = 'red';
@@ -462,8 +470,11 @@ async function login(){
   return;
  }
 
+ button.disabled = true;
+ button.innerText = '正在登录...';
+
  message.style.color = '#888';
- message.innerText = '正在登录...';
+ message.innerText = '正在验证管理员账号...';
 
  try{
 
@@ -479,19 +490,29 @@ async function login(){
    throw error;
   }
 
+  if(!data.user){
+   throw new Error('登录成功，但没有获取到用户信息。');
+  }
+
   currentUser = data.user;
+
+  message.innerText = '登录成功！';
 
   document.getElementById('loginBox').classList.add('hidden');
 
   document.getElementById('adminBox').classList.remove('hidden');
 
-  loadOrders();
+  await loadOrders();
 
  }catch(error){
 
   message.style.color = 'red';
+  message.innerText = '登录失败：' + error.message;
 
-  message.innerText = '登录失败：'+error.message;
+ }finally{
+
+  button.disabled = false;
+  button.innerText = '管理员登录';
 
  }
 
@@ -746,10 +767,38 @@ async function assignWorker(id){
 
 
 /* =========================
-   13. 页面初始化
+   13. 显式绑定网页功能
+========================= */
+
+window.chooseService = chooseService;
+window.calculate = calculate;
+window.submitOrder = submitOrder;
+window.adminLogin = adminLogin;
+window.logout = logout;
+window.loadOrders = loadOrders;
+window.updateOrder = updateOrder;
+window.assignWorker = assignWorker;
+
+
+/* =========================
+   14. 页面初始化
 ========================= */
 
 document.addEventListener('DOMContentLoaded',function(){
+
+ const quantity = document.getElementById('quantity');
+
+ // 单独监听时长变化，确保金额实时更新
+ quantity.addEventListener('change',calculate);
+ quantity.addEventListener('input',calculate);
+
+ // 提交订单按钮绑定
+ document.getElementById('submitButton')
+  .addEventListener('click',submitOrder);
+
+ // 管理员登录按钮绑定
+ document.getElementById('adminLoginButton')
+  .addEventListener('click',adminLogin);
 
  calculate();
 
