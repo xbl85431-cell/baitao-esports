@@ -98,7 +98,7 @@ exports.handler = async function (event) {
         }
 
         const params = new URLSearchParams({
-          select: "order_no,nickname,game_id,service,quantity,timing,note,amount",
+          select: "order_no,nickname,game_id,service,quantity,companion_count,timing,note,amount",
           order_no: "eq." + order_no,
           limit: "1"
         });
@@ -128,6 +128,20 @@ exports.handler = async function (event) {
           throw new Error("没有找到对应的订单");
         }
 
+        // 判断陪玩人数
+
+        const companionCount = Number(order.companion_count || 1);
+
+        let companionText;
+
+        if (String(order.service).includes("护航")) {
+          companionText = "护航服务（固定1人）";
+        } else if (companionCount === 2) {
+          companionText = "双陪（2人）";
+        } else {
+          companionText = "单陪（1人）";
+        }
+
         // 第三步：发送微信通知
 
         const message = [
@@ -137,6 +151,7 @@ exports.handler = async function (event) {
           "游戏 ID：" + order.game_id,
           "订单编号：" + order.order_no,
           "服务项目：" + order.service,
+          "陪玩人数：" + companionText,
           "预约数量：" + order.quantity,
           "订单金额：¥" + order.amount,
           "预约时间：" + (order.timing || "未填写"),
