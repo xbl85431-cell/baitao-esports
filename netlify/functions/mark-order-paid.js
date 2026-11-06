@@ -28,6 +28,7 @@ exports.handler = async function (event) {
   try {
     const SUPABASE_URL = process.env.SUPABASE_URL;
     const SUPABASE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
+    const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
     const PUSHPLUS_TOKEN = process.env.PUSHPLUS_TOKEN;
 
     if (!SUPABASE_URL || !SUPABASE_KEY) {
@@ -88,10 +89,14 @@ exports.handler = async function (event) {
       throw new Error("数据库未确认付款申请");
     }
 
-    // 第二步：付款申请成功后查询订单详情
+    // 第二步：查询订单详情
 
     if (PUSHPLUS_TOKEN) {
       try {
+        if (!SUPABASE_SECRET_KEY) {
+          throw new Error("未配置SUPABASE_SECRET_KEY");
+        }
+
         const params = new URLSearchParams({
           select: "order_no,nickname,game_id,service,quantity,timing,note,amount",
           order_no: "eq." + order_no,
@@ -103,24 +108,27 @@ exports.handler = async function (event) {
           {
             method: "GET",
             headers: {
-              "apikey": SUPABASE_KEY,
-              "Authorization": "Bearer " + SUPABASE_KEY
+              "apikey": SUPABASE_SECRET_KEY
             }
           }
         );
 
+        const orderText = await orderResponse.text();
+
         if (!orderResponse.ok) {
-          throw new Error("无法读取订单详情，数据库可能限制了查询权限");
+          throw new Error(
+            "订单查询失败：" + orderText
+          );
         }
 
-        const orders = await orderResponse.json();
+        const orders = JSON.parse(orderText);
         const order = Array.isArray(orders) ? orders[0] : null;
 
         if (!order) {
           throw new Error("没有找到对应的订单");
         }
 
-        // 第三步：发送原来的微信通知，内容完全不变
+        // 第三步：发送微信通知
 
         const message = [
           "白桃电竞收到一笔新订单！",
@@ -168,10 +176,7 @@ exports.handler = async function (event) {
             !pushResponse.ok ||
             (pushResult && Number(pushResult.code) !== 200)
           ) {
-            console.warn(
-              "PushPlus通知发送失败，HTTP状态：",
-              pushResponse.status
-            );
+            console.warn("PushPlus通知发送失败：", pushResult);
           }
 
         } finally {
@@ -184,11 +189,7 @@ exports.handler = async function (event) {
           pushError.message
         );
       }
-    } else {
-      console.warn("未配置PUSHPLUS_TOKEN，跳过微信通知");
     }
-
-    // 第四步：正常返回付款申请结果
 
     return {
       statusCode: 200,
