@@ -28,6 +28,7 @@ exports.handler = async function (event) {
   try {
     const SUPABASE_URL = process.env.SUPABASE_URL;
     const SUPABASE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
+    const PUSHPLUS_TOKEN = process.env.PUSHPLUS_TOKEN;
 
     if (!SUPABASE_URL || !SUPABASE_KEY) {
       throw new Error("服务器环境变量未配置");
@@ -57,6 +58,8 @@ exports.handler = async function (event) {
     if (service === "护航服务" && quantity !== 1) {
       throw new Error("护航服务一次只能预约一单");
     }
+
+    // 第一步：创建数据库订单
 
     const response = await fetch(
       SUPABASE_URL + "/rest/v1/rpc/create_public_order",
@@ -102,6 +105,78 @@ exports.handler = async function (event) {
     if (!result || !result.order_no) {
       throw new Error("数据库没有返回订单编号");
     }
+
+    // 第二步：数据库创建成功后，发送微信通知
+
+    if (PUSHPLUS_TOKEN) {
+      try {
+        const message = [
+          "白桃电竞收到一笔新订单！",
+          "",
+          "老板称呼：" + nickname,
+          "游戏 ID：" + game_id,
+          "订单编号：" + result.order_no,
+          "服务项目：" + service,
+          "预约数量：" + quantity,
+          "订单金额：¥" + result.amount,
+          "预约时间：" + (timing || "未填写"),
+          "备注：" + (note || "无"),
+          "",
+          "请及时登录后台查看订单。"
+        ].join("\n");
+
+        const controller = new AbortController();
+
+        const timeout = setTimeout(() => {
+          controller.abort();
+        }, 5000);
+
+        try {
+          const pushResponse = await fetch(
+            "https://www.pushplus.plus/send",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                token: PUSHPLUS_TOKEN,
+                title: "白桃电竞｜新订单提醒",
+                content: message,
+                template: "txt",
+                channel: "wechat"
+              }),
+              signal: controller.signal
+            }
+          );
+
+          const pushResult = await pushResponse.json().catch(() => null);
+
+          if (
+            !pushResponse.ok ||
+            (pushResult && Number(pushResult.code) !== 200)
+          ) {
+            console.warn(
+              "PushPlus通知发送失败，HTTP状态：",
+              pushResponse.status
+            );
+          }
+
+        } finally {
+          clearTimeout(timeout);
+        }
+
+      } catch (pushError) {
+        console.warn(
+          "PushPlus通知异常，订单已成功创建：",
+          pushError.message
+        );
+      }
+    } else {
+      console.warn("未配置PUSHPLUS_TOKEN，跳过微信通知");
+    }
+
+    // 第三步：正常返回订单信息
 
     return {
       statusCode: 200,
