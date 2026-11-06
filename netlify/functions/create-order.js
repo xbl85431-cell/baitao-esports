@@ -42,6 +42,12 @@ exports.handler = async function (event) {
     const timing = String(body.timing || "").trim();
     const note = String(body.note || "").trim();
 
+    // 兼容旧版网页：没有传人数时，默认单陪
+    const companion_count =
+      body.companion_count === undefined
+        ? 1
+        : Number(body.companion_count);
+
     if (!nickname || !game_id) {
       throw new Error("请填写老板称呼和游戏 ID");
     }
@@ -54,8 +60,18 @@ exports.handler = async function (event) {
       throw new Error("服务类型不正确");
     }
 
-    if (service === "护航服务" && quantity !== 1) {
-      throw new Error("护航服务一次只能预约一单");
+    if (![1, 2].includes(companion_count)) {
+      throw new Error("陪玩人数不正确");
+    }
+
+    if (service === "护航服务") {
+      if (quantity !== 1) {
+        throw new Error("护航服务一次只能预约一单");
+      }
+
+      if (companion_count !== 1) {
+        throw new Error("护航服务不区分单双陪");
+      }
     }
 
     const response = await fetch(
@@ -72,6 +88,7 @@ exports.handler = async function (event) {
           p_game_id: game_id,
           p_service: service,
           p_quantity: quantity,
+          p_companion_count: companion_count,
           p_timing: timing,
           p_note: note
         })
