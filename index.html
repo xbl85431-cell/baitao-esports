@@ -437,7 +437,7 @@ let currentPaymentMethod = null;
 let currentOrderAmount = 0;
 let paymentQrReady = false;
 
-/* 2. 数据库连接：仅管理员功能使用 */
+/* 2. 数据库连接：开启持久化登录 */
 
 function getDB(){
 
@@ -449,7 +449,14 @@ function getDB(){
 
  db = window.supabase.createClient(
   SUPABASE_URL,
-  SUPABASE_KEY
+  SUPABASE_KEY,
+  {
+   auth:{
+    persistSession:true,
+    autoRefreshToken:true,
+    detectSessionInUrl:true
+   }
+  }
  );
 
  return db;
@@ -548,7 +555,7 @@ function calculate(){
  return total;
 }
 
-/* 6. 提交订单：改为 Netlify 中转 */
+/* 6. 提交订单 */
 
 async function submitOrder(){
 
@@ -737,7 +744,7 @@ function choosePayment(method){
 
 }
 
-/* 8. 老板提交付款申请：改为 Netlify 中转 */
+/* 8. 老板提交付款申请 */
 
 async function markPaid(){
 
@@ -864,9 +871,15 @@ async function logout(){
 
  try{
   const client = getDB();
-  await client.auth.signOut();
+  const {error} = await client.auth.signOut();
+
+  if(error) throw error;
+
  }catch(error){
-  console.error(error);
+
+  alert('退出登录失败：'+error.message);
+  return;
+
  }
 
  currentUser = null;
@@ -877,7 +890,58 @@ async function logout(){
 
 }
 
-/* 11. HTML 安全处理 */
+/* 11. 自动恢复管理员登录状态 */
+
+async function restoreAdminSession(){
+
+ const message = document.getElementById('loginMessage');
+
+ try{
+
+  const client = getDB();
+
+  message.style.color = '#888';
+  message.innerText = '正在检查管理员登录状态...';
+
+  const {data,error} = await client.auth.getSession();
+
+  if(error) throw error;
+
+  if(data.session && data.session.user){
+
+   currentUser = data.session.user;
+
+   document.getElementById('loginBox').classList.add('hidden');
+   document.getElementById('adminBox').classList.remove('hidden');
+
+   await loadOrders();
+
+  }else{
+
+   currentUser = null;
+
+   document.getElementById('adminBox').classList.add('hidden');
+   document.getElementById('loginBox').classList.remove('hidden');
+
+   message.innerText = '';
+
+  }
+
+ }catch(error){
+
+  currentUser = null;
+
+  document.getElementById('adminBox').classList.add('hidden');
+  document.getElementById('loginBox').classList.remove('hidden');
+
+  message.style.color = 'red';
+  message.innerText = '登录状态恢复失败，请重新登录：'+error.message;
+
+ }
+
+}
+
+/* 12. HTML 安全处理 */
 
 function escapeHTML(value){
 
@@ -895,7 +959,7 @@ function escapeHTML(value){
 
 }
 
-/* 12. 后台按钮 */
+/* 13. 后台按钮 */
 
 function createAdminButton(text,callback){
 
@@ -911,7 +975,7 @@ function createAdminButton(text,callback){
 
 }
 
-/* 13. 后台加载订单 */
+/* 14. 后台加载订单 */
 
 async function loadOrders(){
 
@@ -1050,7 +1114,7 @@ async function loadOrders(){
 
 }
 
-/* 14. 管理员确认收款 */
+/* 15. 管理员确认收款 */
 
 async function confirmPayment(id){
 
@@ -1096,7 +1160,7 @@ async function confirmPayment(id){
 
 }
 
-/* 15. 修改订单状态 */
+/* 16. 修改订单状态 */
 
 async function updateOrder(id,status){
 
@@ -1135,7 +1199,7 @@ async function updateOrder(id,status){
 
 }
 
-/* 16. 分配打手 */
+/* 17. 分配打手 */
 
 async function assignWorker(id,name){
 
@@ -1181,7 +1245,7 @@ async function assignWorker(id,name){
 
 }
 
-/* 17. 页面初始化 */
+/* 18. 页面初始化 */
 
 document.addEventListener('DOMContentLoaded',function(){
 
@@ -1216,6 +1280,9 @@ document.addEventListener('DOMContentLoaded',function(){
   .addEventListener('click',markPaid);
 
  calculate();
+
+ // 自动检查并恢复之前的管理员登录状态
+ restoreAdminSession();
 
 });
 
