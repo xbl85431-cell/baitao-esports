@@ -100,8 +100,6 @@ textarea{
  color:#888
 }
 
-/* 单陪、双陪选择 */
-
 .companions{
  display:grid;
  grid-template-columns:repeat(2,1fr);
@@ -493,6 +491,9 @@ let currentPaymentMethod = null;
 let currentOrderAmount = 0;
 let paymentQrReady = false;
 
+/* 新增：单独记录是否已经成功提交付款申请 */
+let paymentApplicationSubmitted = false;
+
 /* 2. 数据库连接：开启持久化登录 */
 
 function getDB(){
@@ -568,7 +569,6 @@ function chooseService(service,el){
  const label = document.getElementById('quantityLabel');
  const companionSection = document.getElementById('companionSection');
 
- // 切换服务时默认恢复单陪
  selectedCompanionCount = 1;
 
  document.querySelectorAll('.companion').forEach(function(item){
@@ -695,6 +695,7 @@ async function submitOrder(){
  currentPaymentMethod = null;
  currentOrderAmount = 0;
  paymentQrReady = false;
+ paymentApplicationSubmitted = false;
 
  try{
 
@@ -798,7 +799,8 @@ function choosePayment(method){
   return;
  }
 
- if(document.getElementById('paidButton').disabled === false){
+ /* 修复：只有真正提交过付款申请，才禁止切换支付方式 */
+ if(paymentApplicationSubmitted){
   alert('当前订单已经提交过付款申请，请等待客服核实。');
   return;
  }
@@ -845,4 +847,572 @@ function choosePayment(method){
   qr.classList.add('hidden');
   paidButton.disabled = true;
 
-  tip.innerText = '
+  tip.innerText = '二维码加载失败，请联系客服处理。';
+
+ };
+
+ qr.src = method === '微信支付' ? WECHAT_QR : ALIPAY_QR;
+
+}
+
+/* 9. 老板提交付款申请 */
+
+async function markPaid(){
+
+ if(!currentOrderNo){
+  alert('没有找到当前订单，请先提交订单。');
+  return;
+ }
+
+ if(!currentPaymentMethod){
+  alert('请先选择微信支付或支付宝。');
+  return;
+ }
+
+ if(!paymentQrReady){
+  alert('二维码尚未加载成功，请稍候再试。');
+  return;
+ }
+
+ if(paymentApplicationSubmitted){
+  alert('付款申请已经提交，请等待客服核实。');
+  return;
+ }
+
+ const button = document.getElementById('paidButton');
+ const message = document.getElementById('paymentMessage');
+
+ button.disabled = true;
+ button.innerText = '正在提交...';
+
+ message.style.color = '#888';
+ message.innerText = '正在提交付款申请，请稍候...';
+
+ try{
+
+  await callNetlifyFunction(
+   'mark-order-paid',
+   {
+    order_no:currentOrderNo,
+    payment_method:currentPaymentMethod
+   }
+  );
+
+  paymentApplicationSubmitted = true;
+
+  message.style.color = '#d45c91';
+  message.innerText = '付款申请提交成功，请等待客服核实到账。';
+
+  document.getElementById('paymentStatus').innerText =
+   '付款状态：待核实';
+
+  button.innerText = '已提交付款申请';
+  button.disabled = true;
+
+  if(currentUser){
+   await loadOrders();
+  }
+
+ }catch(error){
+
+  message.style.color = 'red';
+  message.innerText = '提交失败：'+error.message;
+
+  button.disabled = false;
+  button.innerText = '我已付款';
+
+ }
+
+}
+
+/* 10. 管理员登录 */
+
+async function adminLogin(){
+
+ const email = document.getElementById('email').value.trim();
+ const password = document.getElementById('password').value;
+
+ const message = document.getElementById('loginMessage');
+ const button = document.getElementById('adminLoginButton');
+
+ if(!email || !password){
+  message.style.color = 'red';
+  message.innerText = '请输入管理员邮箱和密码。';
+  return;
+ }
+
+ button.disabled = true;
+ button.innerText = '正在登录...';
+
+ message.style.color = '#888';
+ message.innerText = '正在验证管理员账号...';
+
+ try{
+
+  const client = getDB();
+
+  const {data,error} = await client.auth.signInWithPassword({
+   email:email,
+   password:password
+  });
+
+  if(error) throw error;
+
+  if(!data.user){
+   throw new Error('登录成功，但没有获取到用户信息。');
+  }
+
+  currentUser = data.user;
+
+  message.innerText = '登录成功！';
+
+  document.getElementById('loginBox').classList.add('hidden');
+  document.getElementById('adminBox').classList.remove('hidden');
+
+  await loadOrders();
+
+ }catch(error){
+
+  message.style.color = 'red';
+  message.innerText = '登录失败：'+error.message;
+
+ }finally{
+
+  button.disabled = false;
+  button.innerText = '管理员登录';
+
+ }
+
+}
+
+/* 11. 管理员退出 */
+
+async function logout(){
+
+ try{
+  const client = getDB();
+  const {error} = await client.auth.signOut();
+
+  if(error) throw error;
+
+ }catch(error){
+
+  alert('退出登录失败：'+error.message);
+  return;
+
+ }
+
+ currentUser = null;
+
+ document.getElementById('adminBox').classList.add('hidden');
+ document.getElementById('loginBox').classList.remove('hidden');
+ document.getElementById('loginMessage').innerText = '';
+
+}
+
+/* 12. 自动恢复管理员登录状态 */
+
+async function restoreAdminSession(){
+
+ const message = document.getElementById('loginMessage');
+
+ try{
+
+  const client = getDB();
+
+  message.style.color = '#888';
+  message.innerText = '正在检查管理员登录状态...';
+
+  const {data,error} = await client.auth.getSession();
+
+  if(error) throw error;
+
+  if(data.session && data.session.user){
+
+   currentUser = data.session.user;
+
+   document.getElementById('loginBox').classList.add('hidden');
+   document.getElementById('adminBox').classList.remove('hidden');
+
+   await loadOrders();
+
+  }else{
+
+   currentUser = null;
+
+   document.getElementById('adminBox').classList.add('hidden');
+   document.getElementById('loginBox').classList.remove('hidden');
+
+   message.innerText = '';
+
+  }
+
+ }catch(error){
+
+  currentUser = null;
+
+  document.getElementById('adminBox').classList.add('hidden');
+  document.getElementById('loginBox').classList.remove('hidden');
+
+  message.style.color = 'red';
+  message.innerText = '登录状态恢复失败，请重新登录：'+error.message;
+
+ }
+
+}
+
+/* 13. HTML 安全处理 */
+
+function escapeHTML(value){
+
+ return String(value ?? '').replace(/[&<>"']/g,function(char){
+
+  return {
+   '&':'&amp;',
+   '<':'&lt;',
+   '>':'&gt;',
+   '"':'&quot;',
+   "'":'&#39;'
+  }[char];
+
+ });
+
+}
+
+/* 14. 后台按钮 */
+
+function createAdminButton(text,callback){
+
+ const button = document.createElement('button');
+
+ button.type = 'button';
+ button.className = 'secondary';
+ button.innerText = text;
+
+ button.addEventListener('click',callback);
+
+ return button;
+
+}
+
+/* 15. 后台加载订单 */
+
+async function loadOrders(){
+
+ const box = document.getElementById('orders');
+
+ box.innerHTML = '正在加载订单...';
+
+ try{
+
+  if(!currentUser){
+   throw new Error('管理员尚未登录。');
+  }
+
+  const client = getDB();
+
+  const {data,error} = await client
+   .from('orders')
+   .select('*')
+   .order('created_at',{ascending:false});
+
+  if(error) throw error;
+
+  if(!data || data.length === 0){
+   box.innerHTML = '目前还没有订单。';
+   return;
+  }
+
+  box.innerHTML = '';
+
+  data.forEach(function(order){
+
+   const item = document.createElement('div');
+   item.className = 'order';
+
+   const paymentStatus = order.payment_status || '待付款';
+   const paymentMethod = order.payment_method || '尚未选择';
+
+   const companionText = order.service === '护航服务'
+    ? '护航服务（固定1人）'
+    : (Number(order.companion_count) === 2
+       ? '双陪（2人）'
+       : '单陪（1人）');
+
+   const addText = function(label,value){
+
+    const strong = document.createElement('strong');
+    strong.innerText = label + '：';
+
+    item.appendChild(strong);
+    item.appendChild(document.createTextNode(String(value ?? '')));
+    item.appendChild(document.createElement('br'));
+
+   };
+
+   addText('订单编号',order.order_no);
+   addText('老板',order.nickname);
+   addText('游戏 ID',order.game_id);
+   addText('服务',order.service);
+   addText('陪玩人数',companionText);
+   addText('数量',order.quantity);
+   addText('金额','¥'+order.amount);
+   addText('预约时间',order.timing);
+   addText('备注',order.note || '无');
+   addText('付款方式',paymentMethod);
+
+   const paymentLabel = document.createElement('strong');
+   paymentLabel.innerText = '付款状态：';
+   item.appendChild(paymentLabel);
+
+   const paymentSpan = document.createElement('span');
+   paymentSpan.className = 'status';
+   paymentSpan.innerText = paymentStatus;
+
+   item.appendChild(paymentSpan);
+   item.appendChild(document.createElement('br'));
+
+   addText('打手',order.worker_name || '暂未分配');
+
+   const statusLabel = document.createElement('strong');
+   statusLabel.innerText = '订单状态：';
+   item.appendChild(statusLabel);
+
+   const statusSpan = document.createElement('span');
+   statusSpan.className = 'status';
+   statusSpan.innerText = order.status || '未知';
+
+   item.appendChild(statusSpan);
+   item.appendChild(document.createElement('br'));
+
+   const workerLabel = document.createElement('label');
+   workerLabel.innerText = '填写打手名称';
+   item.appendChild(workerLabel);
+
+   const workerInput = document.createElement('input');
+   workerInput.placeholder = '填写打手名称';
+   workerInput.value = order.worker_name || '';
+
+   item.appendChild(workerInput);
+
+   const actions = document.createElement('div');
+   actions.className = 'admin-actions';
+
+   if(paymentStatus === '待核实'){
+
+    actions.appendChild(
+     createAdminButton('确认收款',function(){
+      confirmPayment(order.id);
+     })
+    );
+
+   }
+
+   actions.appendChild(
+    createAdminButton('接单',function(){
+     updateOrder(order.id,'已接单');
+    })
+   );
+
+   actions.appendChild(
+    createAdminButton('分配打手',function(){
+     assignWorker(order.id,workerInput.value);
+    })
+   );
+
+   actions.appendChild(
+    createAdminButton('完成',function(){
+     updateOrder(order.id,'已完成');
+    })
+   );
+
+   item.appendChild(actions);
+   box.appendChild(item);
+
+  });
+
+ }catch(error){
+
+  box.innerHTML =
+   '<span style="color:red">订单加载失败：'+
+   escapeHTML(error.message)+'</span>';
+
+ }
+
+}
+
+/* 16. 管理员确认收款 */
+
+async function confirmPayment(id){
+
+ if(!currentUser){
+  alert('请先登录管理员账号。');
+  return;
+ }
+
+ const confirmed = confirm(
+  '请确认已经在微信或支付宝实际收到这笔订单的款项。确认后将标记为已付款。'
+ );
+
+ if(!confirmed) return;
+
+ try{
+
+  const client = getDB();
+
+  const {data,error} = await client
+   .from('orders')
+   .update({
+    payment_status:'已付款'
+   })
+   .eq('id',id)
+   .eq('payment_status','待核实')
+   .select('id');
+
+  if(error) throw error;
+
+  if(!data || data.length === 0){
+   throw new Error('没有更新任何订单。订单可能已被处理，或数据库权限不允许此次操作。');
+  }
+
+  alert('收款状态已更新。');
+
+  await loadOrders();
+
+ }catch(error){
+
+  alert('确认收款失败：'+error.message);
+
+ }
+
+}
+
+/* 17. 修改订单状态 */
+
+async function updateOrder(id,status){
+
+ if(!currentUser){
+  alert('请先登录管理员账号。');
+  return;
+ }
+
+ try{
+
+  const client = getDB();
+
+  const {data,error} = await client
+   .from('orders')
+   .update({
+    status:status
+   })
+   .eq('id',id)
+   .select('id');
+
+  if(error) throw error;
+
+  if(!data || data.length === 0){
+   throw new Error('没有更新任何订单，请检查数据库权限。');
+  }
+
+  alert('订单状态已更新。');
+
+  await loadOrders();
+
+ }catch(error){
+
+  alert('更新失败：'+error.message);
+
+ }
+
+}
+
+/* 18. 分配打手 */
+
+async function assignWorker(id,name){
+
+ if(!currentUser){
+  alert('请先登录管理员账号。');
+  return;
+ }
+
+ const workerName = String(name || '').trim();
+
+ if(!workerName){
+  alert('请先填写打手名称。');
+  return;
+ }
+
+ try{
+
+  const client = getDB();
+
+  const {data,error} = await client
+   .from('orders')
+   .update({
+    worker_name:workerName
+   })
+   .eq('id',id)
+   .select('id');
+
+  if(error) throw error;
+
+  if(!data || data.length === 0){
+   throw new Error('没有更新任何订单，请检查数据库权限。');
+  }
+
+  alert('打手分配成功。');
+
+  await loadOrders();
+
+ }catch(error){
+
+  alert('分配失败：'+error.message);
+
+ }
+
+}
+
+/* 19. 页面初始化 */
+
+document.addEventListener('DOMContentLoaded',function(){
+
+ const quantity = document.getElementById('quantity');
+
+ quantity.addEventListener('change',calculate);
+ quantity.addEventListener('input',calculate);
+
+ document.getElementById('submitButton')
+  .addEventListener('click',submitOrder);
+
+ document.getElementById('adminLoginButton')
+  .addEventListener('click',adminLogin);
+
+ document.getElementById('logoutButton')
+  .addEventListener('click',logout);
+
+ document.getElementById('refreshOrdersButton')
+  .addEventListener('click',loadOrders);
+
+ document.getElementById('wechatButton')
+  .addEventListener('click',function(){
+   choosePayment('微信支付');
+  });
+
+ document.getElementById('alipayButton')
+  .addEventListener('click',function(){
+   choosePayment('支付宝');
+  });
+
+ document.getElementById('paidButton')
+  .addEventListener('click',markPaid);
+
+ calculate();
+
+ restoreAdminSession();
+
+});
+
+</script>
+
+</body>
+</html>
