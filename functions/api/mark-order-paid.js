@@ -2,7 +2,7 @@ function jsonResponse(status, data) {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json; charset=utf-8",
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type"
@@ -12,7 +12,7 @@ function jsonResponse(status, data) {
 
 export async function onRequest(context) {
   const request = context.request;
-  const env = context.env;
+  const env = context.env || {};
 
   if (request.method === "OPTIONS") {
     return new Response(null, {
@@ -42,6 +42,8 @@ export async function onRequest(context) {
       throw new Error("服务器环境变量未配置");
     }
 
+    const baseUrl = SUPABASE_URL.replace(/\/+$/, "");
+
     const body = await request.json();
 
     const order_no = String(body.order_no || "").trim();
@@ -58,7 +60,7 @@ export async function onRequest(context) {
     // 第一步：提交付款申请
 
     const response = await fetch(
-      SUPABASE_URL + "/rest/v1/rpc/mark_order_paid",
+      baseUrl + "/rest/v1/rpc/mark_order_paid",
       {
         method: "POST",
         headers: {
@@ -80,7 +82,9 @@ export async function onRequest(context) {
     try {
       data = JSON.parse(responseText);
     } catch {
-      throw new Error("数据库返回内容无法识别");
+      throw new Error(
+        "付款申请返回内容无法识别：" + responseText.slice(0, 500)
+      );
     }
 
     if (!response.ok) {
@@ -88,6 +92,7 @@ export async function onRequest(context) {
         data.message ||
         data.details ||
         data.hint ||
+        data.error ||
         "付款申请提交失败"
       );
     }
@@ -96,14 +101,10 @@ export async function onRequest(context) {
       throw new Error("数据库未确认付款申请");
     }
 
-    // 第二步：查询订单详情
+    // 第二步：查询订单详情并发送通知
 
-    if (PUSHPLUS_TOKEN) {
+    if (PUSHPLUS_TOKEN && SUPABASE_SECRET_KEY) {
       try {
-        if (!SUPABASE_SECRET_KEY) {
-          throw new Error("未配置SUPABASE_SECRET_KEY");
-        }
-
         const params = new URLSearchParams({
           select: "order_no,nickname,game_id,service,quantity,companion_count,timing,note,amount",
           order_no: "eq." + order_no,
@@ -111,11 +112,12 @@ export async function onRequest(context) {
         });
 
         const orderResponse = await fetch(
-          SUPABASE_URL + "/rest/v1/orders?" + params.toString(),
+          baseUrl + "/rest/v1/orders?" + params.toString(),
           {
             method: "GET",
             headers: {
-              "apikey": SUPABASE_SECRET_KEY
+              "apikey": SUPABASE_SECRET_KEY,
+              "Authorization": "Bearer " + SUPABASE_SECRET_KEY
             }
           }
         );
@@ -123,7 +125,7 @@ export async function onRequest(context) {
         const orderText = await orderResponse.text();
 
         if (!orderResponse.ok) {
-          throw new Error("订单查询失败：" + orderText);
+          throw new Error("订单查询失败：" + orderText.slice(0, 500));
         }
 
         const orders = JSON.parse(orderText);
@@ -132,8 +134,6 @@ export async function onRequest(context) {
         if (!order) {
           throw new Error("没有找到对应的订单");
         }
-
-        // 判断陪玩人数
 
         const companionCount = Number(order.companion_count || 1);
 
@@ -146,8 +146,6 @@ export async function onRequest(context) {
         } else {
           companionText = "单陪（1人）";
         }
-
-        // 第三步：发送微信通知
 
         const message = [
           "白桃电竞收到一笔新订单！",
@@ -203,11 +201,8 @@ export async function onRequest(context) {
           clearTimeout(timeout);
         }
 
-      } catch (pushError) {
-        console.warn(
-          "微信通知发送异常，付款申请已经成功：",
-          pushError.message
-        );
+      } catch (notifyError) {
+        console.warn("订单通知异常：", notifyError.message);
       }
     }
 
