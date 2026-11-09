@@ -37,28 +37,14 @@ export async function onRequest(context) {
   const secretExists = Boolean(env.SUPABASE_SECRET_KEY);
   const pushplusExists = Boolean(env.PUSHPLUS_TOKEN);
 
-  if (!urlExists || !publishableExists) {
-    return jsonResponse(500, {
-      success: false,
-      message: "Cloudflare Functions 环境变量读取检查失败",
-      debug: {
-        SUPABASE_URL: urlExists,
-        SUPABASE_PUBLISHABLE_KEY: publishableExists,
-        SUPABASE_SECRET_KEY: secretExists,
-        PUSHPLUS_TOKEN: pushplusExists,
-        available_variable_names: Object.keys(env)
-      }
-    });
-  }
-
   return jsonResponse(200, {
-    success: true,
-    message: "Cloudflare Functions 已成功读取 Supabase 环境变量",
-    debug: {
-      SUPABASE_URL: true,
-      SUPABASE_PUBLISHABLE_KEY: true,
+    success: urlExists && publishableExists,
+    message: "环境变量检查结果：" + JSON.stringify({
+      SUPABASE_URL: urlExists,
+      SUPABASE_PUBLISHABLE_KEY: publishableExists,
       SUPABASE_SECRET_KEY: secretExists,
-      PUSHPLUS_TOKEN: pushplusExists
-    }
+      PUSHPLUS_TOKEN: pushplusExists,
+      available_variable_names: Object.keys(env)
+    })
   });
 }
