@@ -111,7 +111,7 @@ export async function onRequest(context) {
     } catch {
       return jsonResponse(502, {
         success: false,
-        message: "Supabase 返回的不是 JSON",
+message: "Supabase 返回的不是 JSON：" + responseText.slice(0, 800),
         debug: {
           http_status: response.status,
           content_type: contentType,
