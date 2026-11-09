@@ -32,19 +32,125 @@ export async function onRequest(context) {
     });
   }
 
-  const urlExists = Boolean(env.SUPABASE_URL);
-  const publishableExists = Boolean(env.SUPABASE_PUBLISHABLE_KEY);
-  const secretExists = Boolean(env.SUPABASE_SECRET_KEY);
-  const pushplusExists = Boolean(env.PUSHPLUS_TOKEN);
+  try {
+    const SUPABASE_URL = env.SUPABASE_URL;
+    const SUPABASE_KEY = env.SUPABASE_PUBLISHABLE_KEY;
 
-  return jsonResponse(200, {
-    success: urlExists && publishableExists,
-    message: "环境变量检查结果：" + JSON.stringify({
-      SUPABASE_URL: urlExists,
-      SUPABASE_PUBLISHABLE_KEY: publishableExists,
-      SUPABASE_SECRET_KEY: secretExists,
-      PUSHPLUS_TOKEN: pushplusExists,
-      available_variable_names: Object.keys(env)
-    })
-  });
+    if (!SUPABASE_URL || !SUPABASE_KEY) {
+      throw new Error("Supabase 环境变量未配置，请检查 Cloudflare 设置");
+    }
+
+    const body = await request.json();
+
+    const nickname = String(body.nickname || "").trim();
+    const game_id = String(body.game_id || "").trim();
+    const service = String(body.service || "").trim();
+    const quantity = Number(body.quantity);
+    const timing = String(body.timing || "").trim();
+    const note = String(body.note || "").trim();
+
+    const companion_count =
+      body.companion_count === undefined
+        ? 1
+        : Number(body.companion_count);
+
+    if (!nickname || !game_id) {
+      throw new Error("请填写老板称呼和游戏 ID");
+    }
+
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 5) {
+      throw new Error("预约数量不正确");
+    }
+
+    if (!["娱乐陪玩", "技术陪玩", "护航服务"].includes(service)) {
+      throw new Error("服务类型不正确");
+    }
+
+    if (![1, 2].includes(companion_count)) {
+      throw new Error("陪玩人数不正确");
+    }
+
+    if (service === "护航服务") {
+      if (quantity !== 1) {
+        throw new Error("护航服务一次只能预约一单");
+      }
+
+      if (companion_count !== 1) {
+        throw new Error("护航服务不区分单双陪");
+      }
+    }
+
+    const supabaseUrl = SUPABASE_URL.replace(/\/+$/, "");
+
+    const response = await fetch(
+      supabaseUrl + "/rest/v1/rpc/create_public_order",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_KEY,
+          "Authorization": "Bearer " + SUPABASE_KEY
+        },
+        body: JSON.stringify({
+          p_nickname: nickname,
+          p_game_id: game_id,
+          p_service: service,
+          p_quantity: quantity,
+          p_companion_count: companion_count,
+          p_timing: timing,
+          p_note: note
+        })
+      }
+    );
+
+    const responseText = await response.text();
+
+    let data;
+
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      throw new Error(
+        "Supabase 返回内容无法识别，HTTP状态：" +
+        response.status +
+        "，返回内容：" +
+        responseText.slice(0, 500)
+      );
+    }
+
+    if (!response.ok) {
+      const errorMessage =
+        data.message ||
+        data.details ||
+        data.hint ||
+        data.error ||
+        "数据库创建订单失败";
+
+      throw new Error(
+        "Supabase 创建订单失败（HTTP " +
+        response.status +
+        "）：" +
+        errorMessage
+      );
+    }
+
+    const result = Array.isArray(data) ? data[0] : data;
+
+    if (!result || !result.order_no) {
+      throw new Error(
+        "数据库没有返回有效订单编号，请检查后台订单"
+      );
+    }
+
+    return jsonResponse(200, {
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    return jsonResponse(400, {
+      success: false,
+      message: error.message || "创建订单失败"
+    });
+  }
 }
