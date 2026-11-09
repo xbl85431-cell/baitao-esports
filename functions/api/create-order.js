@@ -2,7 +2,7 @@ function jsonResponse(status, data) {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json; charset=utf-8",
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type"
@@ -49,7 +49,6 @@ export async function onRequest(context) {
     const timing = String(body.timing || "").trim();
     const note = String(body.note || "").trim();
 
-    // 兼容旧版网页：没有传人数时，默认单陪
     const companion_count =
       body.companion_count === undefined
         ? 1
@@ -103,28 +102,45 @@ export async function onRequest(context) {
     );
 
     const responseText = await response.text();
+    const contentType = response.headers.get("content-type") || "未知";
 
     let data;
 
     try {
       data = JSON.parse(responseText);
     } catch {
-      throw new Error("数据库返回内容无法识别");
+      return jsonResponse(502, {
+        success: false,
+        message: "Supabase 返回的不是 JSON",
+        debug: {
+          http_status: response.status,
+          content_type: contentType,
+          response_body: responseText.slice(0, 800)
+        }
+      });
     }
 
     if (!response.ok) {
-      throw new Error(
-        data.message ||
-        data.details ||
-        data.hint ||
-        "数据库创建订单失败"
-      );
+      return jsonResponse(502, {
+        success: false,
+        message: "Supabase 创建订单失败",
+        debug: {
+          http_status: response.status,
+          database_error: data
+        }
+      });
     }
 
     const result = Array.isArray(data) ? data[0] : data;
 
     if (!result || !result.order_no) {
-      throw new Error("数据库没有返回订单编号");
+      return jsonResponse(502, {
+        success: false,
+        message: "数据库没有返回订单编号",
+        debug: {
+          database_result: data
+        }
+      });
     }
 
     return jsonResponse(200, {
