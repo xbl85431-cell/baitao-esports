@@ -300,10 +300,10 @@ function removeSavedOrder(){
 
 /* 4. 通用中转接口 */
 
-async function callNetlifyFunction(path,body){
+async function callBackendFunction(path,body){
 
  const response=await fetch(
-  '/.netlify/functions/'+path,
+  '/api/'+path,
   {
    method:'POST',
    headers:{'Content-Type':'application/json'},
@@ -465,7 +465,7 @@ async function submitOrder(){
 
  try{
 
-  const result=await callNetlifyFunction('create-order',{
+  const result=await callBackendFunction('create-order',{
    nickname:nickname,
    game_id:gameid,
    service:selectedService,
@@ -753,7 +753,7 @@ async function markPaid(){
 
  try{
 
-  await callNetlifyFunction('mark-order-paid',{
+  await callBackendFunction('mark-order-paid',{
    order_no:currentOrderNo,
    payment_method:currentPaymentMethod
   });
