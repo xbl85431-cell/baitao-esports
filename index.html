@@ -9,281 +9,50 @@
 
 <style>
 *{box-sizing:border-box}
-
-body{
- margin:0;
- background:#f7f5f8;
- color:#29242d;
- font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif
-}
-
-header{
- background:linear-gradient(135deg,#f4a9c6,#e879a7);
- color:white;
- padding:30px 22px 26px;
- border-radius:0 0 25px 25px
-}
-
+body{margin:0;background:#f7f5f8;color:#29242d;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+header{background:linear-gradient(135deg,#f4a9c6,#e879a7);color:white;padding:30px 22px 26px;border-radius:0 0 25px 25px}
 header h1{margin:0;font-size:28px}
 header p{margin:9px 0 0;font-size:13px;opacity:.9}
-
-.container{
- padding:18px;
- max-width:600px;
- margin:auto
-}
-
-.card{
- background:white;
- border-radius:17px;
- padding:20px;
- margin-bottom:15px;
- box-shadow:0 3px 15px #00000008
-}
-
-.title{
- font-size:17px;
- font-weight:700;
- margin:0 0 16px
-}
-
-label{
- display:block;
- font-size:13px;
- color:#777;
- margin:13px 0 7px
-}
-
-input,select,textarea{
- width:100%;
- padding:13px;
- border:1px solid #eee;
- border-radius:10px;
- font-size:15px;
- background:#fff;
- color:#333
-}
-
-textarea{
- height:75px;
- resize:vertical
-}
-
-.services{
- display:grid;
- grid-template-columns:repeat(3,1fr);
- gap:9px
-}
-
-.service{
- border:1px solid #eee;
- border-radius:12px;
- padding:13px 5px;
- text-align:center;
- cursor:pointer
-}
-
-.service.active{
- border:2px solid #e879a7;
- background:#fff4f8;
- color:#d65389
-}
-
-.service b{
- display:block;
- font-size:15px;
- margin-bottom:5px
-}
-
-.service small{
- font-size:12px;
- color:#888
-}
-
-.companions{
- display:grid;
- grid-template-columns:repeat(2,1fr);
- gap:10px
-}
-
-.companion{
- border:1px solid #eee;
- border-radius:12px;
- padding:13px 5px;
- text-align:center;
- cursor:pointer;
- background:white;
- color:#555
-}
-
-.companion.active{
- border:2px solid #e879a7;
- background:#fff4f8;
- color:#d65389
-}
-
-.companion b{
- display:block;
- font-size:15px;
- margin-bottom:5px
-}
-
-.companion small{
- font-size:12px;
- color:#888
-}
-
-button{
- border:0;
- border-radius:11px;
- padding:14px;
- font-size:15px;
- font-weight:700;
- cursor:pointer
-}
-
-button:disabled{
- opacity:.6;
- cursor:not-allowed
-}
-
-.primary{
- width:100%;
- background:#e879a7;
- color:white;
- margin-top:17px
-}
-
-.secondary{
- background:#f5e5ed;
- color:#bd527e
-}
-
-.price{
- font-size:27px;
- color:#df6396;
- font-weight:800
-}
-
-.muted{
- font-size:12px;
- color:#999;
- line-height:1.8
-}
-
-.hidden{display:none}
-
-.order{
- border:1px solid #f0e7ec;
- border-radius:12px;
- padding:13px;
- margin:10px 0;
- overflow-wrap:anywhere
-}
-
+.container{padding:18px;max-width:600px;margin:auto}
+.card{background:white;border-radius:17px;padding:20px;margin-bottom:15px;box-shadow:0 3px 15px #00000008}
+.title{font-size:17px;font-weight:700;margin:0 0 16px}
+label{display:block;font-size:13px;color:#777;margin:13px 0 7px}
+input,select,textarea{width:100%;padding:13px;border:1px solid #eee;border-radius:10px;font-size:15px;background:#fff;color:#333}
+textarea{height:75px;resize:vertical}
+.services{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.service{border:1px solid #eee;border-radius:12px;padding:13px 5px;text-align:center;cursor:pointer}
+.service.active{border:2px solid #e879a7;background:#fff4f8;color:#d65389}
+.service b{display:block;font-size:15px;margin-bottom:5px}
+.service small{font-size:12px;color:#888}
+.companions{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.companion{border:1px solid #eee;border-radius:12px;padding:13px 5px;text-align:center;cursor:pointer;background:white;color:#555}
+.companion.active{border:2px solid #e879a7;background:#fff4f8;color:#d65389}
+.companion b{display:block;font-size:15px;margin-bottom:5px}
+.companion small{font-size:12px;color:#888}
+button{border:0;border-radius:11px;padding:14px;font-size:15px;font-weight:700;cursor:pointer}
+button:disabled{opacity:.6;cursor:not-allowed}
+.primary{width:100%;background:#e879a7;color:white;margin-top:17px}
+.secondary{background:#f5e5ed;color:#bd527e}
+.price{font-size:27px;color:#df6396;font-weight:800}
+.muted{font-size:12px;color:#999;line-height:1.8}
+.hidden{display:none!important}
+.order{border:1px solid #f0e7ec;border-radius:12px;padding:13px;margin:10px 0;overflow-wrap:anywhere}
 .order strong{font-size:14px}
-
-.status{
- color:#d45c91;
- font-size:12px
-}
-
-.admin-actions{
- display:flex;
- gap:8px;
- margin-top:10px;
- flex-wrap:wrap
-}
-
-.admin-actions button{
- flex:1;
- min-width:65px;
- font-size:12px;
- padding:10px
-}
-
-#message,#loginMessage{
- font-size:13px;
- line-height:1.8;
- margin-top:12px
-}
-
-#systemMessage{
- background:#fff4f4;
- color:#c33;
- border-radius:10px;
- padding:12px;
- margin-bottom:15px;
- font-size:13px;
- display:none;
- line-height:1.7
-}
-
-#paymentBox{
- margin-top:18px;
- padding:15px;
- background:#fff7fa;
- border:1px solid #f5dce7;
- border-radius:13px
-}
-
-.payment-title{
- font-size:16px;
- font-weight:700;
- margin-bottom:10px
-}
-
-.payment-qr{
- display:block;
- width:220px;
- max-width:100%;
- margin:15px auto;
- border-radius:10px;
- border:1px solid #eee
-}
-
-.payment-tip{
- text-align:center;
- color:#888;
- font-size:12px;
- line-height:1.8
-}
-
-.payment-status{
- color:#d45c91;
- font-weight:700;
- margin-top:10px
-}
-
-.payment-methods{
- display:flex;
- gap:10px;
- margin-top:10px
-}
-
-.payment-methods button{
- flex:1;
- background:#f5e5ed;
- color:#bd527e
-}
-
-.payment-methods button.active{
- background:#e879a7;
- color:white
-}
-
-#paymentMessage{
- font-size:13px;
- line-height:1.8;
- margin-top:10px
-}
-
-footer{
- text-align:center;
- color:#aaa;
- font-size:11px;
- padding:20px
-}
+.status{color:#d45c91;font-size:12px}
+.admin-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.admin-actions button{flex:1;min-width:65px;font-size:12px;padding:10px}
+#message,#loginMessage{font-size:13px;line-height:1.8;margin-top:12px}
+#systemMessage{background:#fff4f4;color:#c33;border-radius:10px;padding:12px;margin-bottom:15px;font-size:13px;display:none;line-height:1.7}
+#paymentBox{margin-top:18px;padding:15px;background:#fff7fa;border:1px solid #f5dce7;border-radius:13px}
+.payment-title{font-size:16px;font-weight:700;margin-bottom:10px}
+.payment-qr{display:block;width:220px;max-width:100%;margin:15px auto;border-radius:10px;border:1px solid #eee}
+.payment-tip{text-align:center;color:#888;font-size:12px;line-height:1.8}
+.payment-status{color:#d45c91;font-weight:700;margin-top:10px}
+.payment-methods{display:flex;gap:10px;margin-top:10px}
+.payment-methods button{flex:1;background:#f5e5ed;color:#bd527e}
+.payment-methods button.active{background:#e879a7;color:white}
+#paymentMessage{font-size:13px;line-height:1.8;margin-top:10px}
+footer{text-align:center;color:#aaa;font-size:11px;padding:20px}
 </style>
 </head>
 
@@ -311,46 +80,30 @@ footer{
 <label>选择服务</label>
 
 <div class="services">
-
 <div class="service active" onclick="chooseService('娱乐陪玩',this)">
-<b>娱乐陪玩</b>
-<small>33元 / 小时起</small>
+<b>娱乐陪玩</b><small>33元 / 小时起</small>
 </div>
-
 <div class="service" onclick="chooseService('技术陪玩',this)">
-<b>技术陪玩</b>
-<small>44元 / 小时起</small>
+<b>技术陪玩</b><small>44元 / 小时起</small>
 </div>
-
 <div class="service" onclick="chooseService('护航服务',this)">
-<b>护航服务</b>
-<small>99元 / 单</small>
+<b>护航服务</b><small>99元 / 单</small>
 </div>
-
 </div>
 
 <div id="companionSection">
-
 <label>选择陪玩人数</label>
-
 <div class="companions">
-
 <div class="companion active" onclick="chooseCompanionCount(1,this)">
-<b>单陪</b>
-<small>1位陪玩师</small>
+<b>单陪</b><small>1位陪玩师</small>
 </div>
-
 <div class="companion" onclick="chooseCompanionCount(2,this)">
-<b>双陪</b>
-<small>2位陪玩师</small>
+<b>双陪</b><small>2位陪玩师</small>
 </div>
-
 </div>
-
 </div>
 
 <label id="quantityLabel">预约时长</label>
-
 <select id="quantity">
 <option value="1">1小时</option>
 <option value="2">2小时</option>
@@ -360,7 +113,6 @@ footer{
 </select>
 
 <label>预约时间</label>
-
 <select id="timing">
 <option>尽快安排</option>
 <option>今天晚上</option>
@@ -369,27 +121,20 @@ footer{
 </select>
 
 <label>备注（选填）</label>
-
 <textarea id="note" placeholder="有什么特殊要求可以写在这里"></textarea>
 
 <label>订单金额</label>
-
 <div class="price" id="price">¥33</div>
 
-<button id="submitButton" class="primary" type="button">
-提交订单
-</button>
-
+<button id="submitButton" class="primary" type="button">提交订单</button>
 <div id="message"></div>
 
 <div id="paymentBox" class="hidden">
 
 <div class="payment-title">💳 订单支付</div>
-
 <div id="paymentOrderInfo" class="muted"></div>
 
 <label>选择支付方式</label>
-
 <div class="payment-methods">
 <button id="wechatButton" type="button">微信支付</button>
 <button id="alipayButton" type="button">支付宝</button>
@@ -397,69 +142,49 @@ footer{
 
 <img id="paymentQR" class="payment-qr hidden" alt="收款二维码">
 
-<div id="paymentTip" class="payment-tip">
-请选择支付方式查看收款二维码。
-</div>
+<div id="paymentTip" class="payment-tip">请选择支付方式查看收款二维码。</div>
 
-<button id="paidButton" class="primary" type="button" disabled>
-我已付款
-</button>
+<button id="paidButton" class="primary" type="button" disabled>我已付款</button>
 
 <div id="paymentMessage"></div>
 <div id="paymentStatus" class="payment-status"></div>
 
-</div>
+<button id="resetOrderButton" class="secondary" type="button" style="width:100%;margin-top:15px">
+结束当前订单，重新下单
+</button>
 
+</div>
 </div>
 
 <div class="card">
-
 <h3 class="title">📌 下单须知</h3>
-
 <p class="muted">
 1. 提交订单后，请按照页面提示完成付款。<br>
 2. 付款后请点击「我已付款」，等待客服核实。<br>
 3. 具体安排以客服确认为准。<br>
 4. 如有特殊要求，请提前在备注中说明。
 </p>
-
 </div>
 
 <div class="card">
-
 <h3 class="title">🔐 管理员入口</h3>
 
 <div id="loginBox">
-
 <label>管理员邮箱</label>
 <input id="email" type="email" placeholder="管理员邮箱">
-
 <label>登录密码</label>
 <input id="password" type="password" placeholder="管理员密码">
-
-<button id="adminLoginButton" class="primary" type="button">
-管理员登录
-</button>
-
+<button id="adminLoginButton" class="primary" type="button">管理员登录</button>
 <div id="loginMessage"></div>
-
 </div>
 
 <div id="adminBox" class="hidden">
-
-<p>
-<b>管理员后台</b>
+<p><b>管理员后台</b>
 <button class="secondary" type="button" id="logoutButton">退出登录</button>
 </p>
-
-<button class="secondary" type="button" id="refreshOrdersButton">
-刷新订单
-</button>
-
+<button class="secondary" type="button" id="refreshOrdersButton">刷新订单</button>
 <div id="orders">正在加载订单...</div>
-
 </div>
-
 </div>
 
 </div>
@@ -470,41 +195,34 @@ footer{
 
 /* 1. Supabase 配置 */
 
-const SUPABASE_URL =
-'https://cdjospnktexteqyqvgzb.supabase.co';
+const SUPABASE_URL='https://cdjospnktexteqyqvgzb.supabase.co';
+const SUPABASE_KEY='sb_publishable_pLVz9K1xFEuiUGOkWmr1pw_dg-tU5N8';
+const WECHAT_QR='https://raw.githubusercontent.com/xbl85431-cell/baitao-esports/main/IMG_4063.jpeg';
+const ALIPAY_QR='https://raw.githubusercontent.com/xbl85431-cell/baitao-esports/main/IMG_4064.jpeg';
 
-const SUPABASE_KEY =
-'sb_publishable_pLVz9K1xFEuiUGOkWmr1pw_dg-tU5N8';
+const SAVED_ORDER_KEY='baitao_pending_payment_order_v1';
 
-const WECHAT_QR =
-'https://raw.githubusercontent.com/xbl85431-cell/baitao-esports/main/IMG_4063.jpeg';
+let db=null;
+let selectedService='娱乐陪玩';
+let selectedCompanionCount=1;
+let currentUser=null;
+let currentOrderNo=null;
+let currentPaymentMethod=null;
+let currentOrderAmount=0;
+let paymentQrReady=false;
+let paymentApplicationSubmitted=false;
 
-const ALIPAY_QR =
-'https://raw.githubusercontent.com/xbl85431-cell/baitao-esports/main/IMG_4064.jpeg';
-
-let db = null;
-let selectedService = '娱乐陪玩';
-let selectedCompanionCount = 1;
-let currentUser = null;
-let currentOrderNo = null;
-let currentPaymentMethod = null;
-let currentOrderAmount = 0;
-let paymentQrReady = false;
-
-/* 新增：单独记录是否已经成功提交付款申请 */
-let paymentApplicationSubmitted = false;
-
-/* 2. 数据库连接：开启持久化登录 */
+/* 2. Supabase 数据库连接 */
 
 function getDB(){
 
- if(db) return db;
+ if(db)return db;
 
- if(!window.supabase || !window.supabase.createClient){
+ if(!window.supabase||!window.supabase.createClient){
   throw new Error('管理员数据库组件加载失败，请刷新网页。');
  }
 
- db = window.supabase.createClient(
+ db=window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY,
   {
@@ -519,227 +237,273 @@ function getDB(){
  return db;
 }
 
-/* 3. 通用中转接口 */
+/* 3. 本地订单保存 */
+
+function saveCurrentOrder(){
+
+ if(!currentOrderNo)return;
+
+ const saved={
+  order_no:currentOrderNo,
+  amount:currentOrderAmount,
+  service:selectedService,
+  companion_count:selectedService==='护航服务'?1:selectedCompanionCount,
+  quantity:Number(document.getElementById('quantity').value)||1,
+  payment_method:currentPaymentMethod,
+  payment_application_submitted:paymentApplicationSubmitted,
+  saved_at:Date.now()
+ };
+
+ try{
+  localStorage.setItem(SAVED_ORDER_KEY,JSON.stringify(saved));
+ }catch(error){
+  console.error('订单本地保存失败：',error);
+  document.getElementById('systemMessage').style.display='block';
+  document.getElementById('systemMessage').innerText=
+   '当前浏览器无法保存订单。请不要关闭此页面，并联系在线客服。';
+ }
+}
+
+function getSavedOrder(){
+
+ try{
+  const raw=localStorage.getItem(SAVED_ORDER_KEY);
+  if(!raw)return null;
+
+  const saved=JSON.parse(raw);
+
+  if(
+   !saved||
+   !saved.order_no||
+   !Number.isFinite(Number(saved.amount))||
+   Number(saved.amount)<=0
+  ){
+   return null;
+  }
+
+  return saved;
+
+ }catch(error){
+  console.error('读取本地订单失败：',error);
+  return null;
+ }
+}
+
+function removeSavedOrder(){
+
+ try{
+  localStorage.removeItem(SAVED_ORDER_KEY);
+ }catch(error){
+  console.error('清除本地订单失败：',error);
+ }
+}
+
+/* 4. 通用中转接口 */
 
 async function callNetlifyFunction(path,body){
 
- const response = await fetch(
-  '/.netlify/functions/' + path,
+ const response=await fetch(
+  '/.netlify/functions/'+path,
   {
    method:'POST',
-   headers:{
-    'Content-Type':'application/json'
-   },
+   headers:{'Content-Type':'application/json'},
    body:JSON.stringify(body)
   }
  );
 
- const text = await response.text();
-
+ const text=await response.text();
  let result;
 
  try{
-  result = JSON.parse(text);
+  result=JSON.parse(text);
  }catch{
   throw new Error('服务器返回内容无法识别：'+text.slice(0,200));
  }
 
- if(!response.ok || !result.success){
-  throw new Error(
-   result.message || '服务器请求失败，状态码：'+response.status
-  );
+ if(!response.ok||!result.success){
+  throw new Error(result.message||'服务器请求失败，状态码：'+response.status);
  }
 
  return result.data;
 }
 
-/* 4. 选择服务 */
+/* 5. 选择服务 */
 
 function chooseService(service,el){
 
- selectedService = service;
+ if(currentOrderNo){
+  alert('当前有一笔未结束的订单，请先结束当前订单后再修改服务。');
+  return;
+ }
 
- document.querySelectorAll('.service').forEach(function(item){
+ selectedService=service;
+
+ document.querySelectorAll('.service').forEach(item=>{
   item.classList.remove('active');
  });
 
  el.classList.add('active');
 
- const quantity = document.getElementById('quantity');
- const label = document.getElementById('quantityLabel');
- const companionSection = document.getElementById('companionSection');
+ const quantity=document.getElementById('quantity');
+ const label=document.getElementById('quantityLabel');
+ const companionSection=document.getElementById('companionSection');
 
- selectedCompanionCount = 1;
+ selectedCompanionCount=1;
 
- document.querySelectorAll('.companion').forEach(function(item){
+ document.querySelectorAll('.companion').forEach(item=>{
   item.classList.remove('active');
  });
 
  document.querySelectorAll('.companion')[0].classList.add('active');
 
- if(service === '护航服务'){
+ if(service==='护航服务'){
 
   companionSection.classList.add('hidden');
-
-  quantity.innerHTML = '<option value="1">1单</option>';
-  label.innerText = '护航数量';
+  quantity.innerHTML='<option value="1">1单</option>';
+  label.innerText='护航数量';
 
  }else{
 
   companionSection.classList.remove('hidden');
-
-  quantity.innerHTML = '';
+  quantity.innerHTML='';
 
   for(let i=1;i<=5;i++){
-   quantity.innerHTML += '<option value="'+i+'">'+i+'小时</option>';
+   quantity.innerHTML+='<option value="'+i+'">'+i+'小时</option>';
   }
 
-  label.innerText = '预约时长';
+  label.innerText='预约时长';
  }
 
- quantity.value = '1';
-
+ quantity.value='1';
  calculate();
 }
 
-/* 5. 选择陪玩人数 */
+/* 6. 选择陪玩人数 */
 
 function chooseCompanionCount(count,el){
 
- if(selectedService === '护航服务'){
+ if(currentOrderNo){
+  alert('当前有一笔未结束的订单，请先结束当前订单。');
   return;
  }
 
- if(count !== 1 && count !== 2){
-  return;
- }
+ if(selectedService==='护航服务')return;
+ if(count!==1&&count!==2)return;
 
- selectedCompanionCount = count;
+ selectedCompanionCount=count;
 
- document.querySelectorAll('.companion').forEach(function(item){
+ document.querySelectorAll('.companion').forEach(item=>{
   item.classList.remove('active');
  });
 
  el.classList.add('active');
-
  calculate();
 }
 
-/* 6. 计算金额 */
+/* 7. 金额计算 */
 
 function calculate(){
 
- const quantityElement = document.getElementById('quantity');
- const priceElement = document.getElementById('price');
+ const quantityElement=document.getElementById('quantity');
+ const priceElement=document.getElementById('price');
 
- if(!quantityElement || !priceElement) return 0;
+ if(!quantityElement||!priceElement)return 0;
 
- const quantity = Number(quantityElement.value) || 1;
+ const quantity=Number(quantityElement.value)||1;
 
- let unit = 33;
+ let unit=33;
 
- if(selectedService === '技术陪玩') unit = 44;
- if(selectedService === '护航服务') unit = 99;
+ if(selectedService==='技术陪玩')unit=44;
+ if(selectedService==='护航服务')unit=99;
 
- const people = selectedService === '护航服务'
-  ? 1
-  : selectedCompanionCount;
+ const people=selectedService==='护航服务'?1:selectedCompanionCount;
+ const total=unit*quantity*people;
 
- const total = unit * quantity * people;
-
- priceElement.innerText = '¥' + total;
-
+ priceElement.innerText='¥'+total;
  return total;
 }
 
-/* 7. 提交订单 */
+/* 8. 提交订单 */
 
 async function submitOrder(){
 
- const nickname = document.getElementById('nickname').value.trim();
- const gameid = document.getElementById('gameid').value.trim();
- const quantity = Number(document.getElementById('quantity').value);
- const timing = document.getElementById('timing').value;
- const note = document.getElementById('note').value.trim();
-
- const companionCount = selectedService === '护航服务'
-  ? 1
-  : selectedCompanionCount;
-
- const message = document.getElementById('message');
- const button = document.getElementById('submitButton');
-
- if(!nickname || !gameid){
-  message.style.color = 'red';
-  message.innerText = '请填写称呼和游戏 ID。';
+ if(currentOrderNo){
+  alert('你还有一笔未结束的订单，请先处理当前订单。');
+  document.getElementById('paymentBox').scrollIntoView({behavior:'smooth'});
   return;
  }
 
- if(!Number.isInteger(quantity) || quantity < 1 || quantity > 5){
-  message.style.color = 'red';
-  message.innerText = '预约数量不正确，请重新选择。';
+ const nickname=document.getElementById('nickname').value.trim();
+ const gameid=document.getElementById('gameid').value.trim();
+ const quantity=Number(document.getElementById('quantity').value);
+ const timing=document.getElementById('timing').value;
+ const note=document.getElementById('note').value.trim();
+
+ const companionCount=selectedService==='护航服务'?1:selectedCompanionCount;
+
+ const message=document.getElementById('message');
+ const button=document.getElementById('submitButton');
+
+ if(!nickname||!gameid){
+  message.style.color='red';
+  message.innerText='请填写称呼和游戏 ID。';
   return;
  }
 
- if(button.disabled) return;
+ if(!Number.isInteger(quantity)||quantity<1||quantity>5){
+  message.style.color='red';
+  message.innerText='预约数量不正确，请重新选择。';
+  return;
+ }
 
- button.disabled = true;
- button.innerText = '正在提交...';
+ if(button.disabled)return;
 
- message.style.color = '#888';
- message.innerText = '正在提交订单，请稍候...';
-
- document.getElementById('paymentBox').classList.add('hidden');
-
- currentOrderNo = null;
- currentPaymentMethod = null;
- currentOrderAmount = 0;
- paymentQrReady = false;
- paymentApplicationSubmitted = false;
+ button.disabled=true;
+ button.innerText='正在提交...';
+ message.style.color='#888';
+ message.innerText='正在提交订单，请稍候...';
 
  try{
 
-  const result = await callNetlifyFunction(
-   'create-order',
-   {
-    nickname:nickname,
-    game_id:gameid,
-    service:selectedService,
-    quantity:quantity,
-    companion_count:companionCount,
-    timing:timing,
-    note:note
-   }
-  );
+  const result=await callNetlifyFunction('create-order',{
+   nickname:nickname,
+   game_id:gameid,
+   service:selectedService,
+   quantity:quantity,
+   companion_count:companionCount,
+   timing:timing,
+   note:note
+  });
 
-  if(!result || !result.order_no){
+  if(!result||!result.order_no){
    throw new Error('服务器没有返回有效订单信息。');
   }
 
-  const amount = Number(result.amount);
+  const amount=Number(result.amount);
 
-  if(!Number.isFinite(amount) || amount <= 0){
+  if(!Number.isFinite(amount)||amount<=0){
    throw new Error('订单金额异常，请联系客服处理。');
   }
 
-  currentOrderNo = result.order_no;
-  currentOrderAmount = amount;
-  currentPaymentMethod = null;
+  currentOrderNo=result.order_no;
+  currentOrderAmount=amount;
+  currentPaymentMethod=null;
+  paymentQrReady=false;
+  paymentApplicationSubmitted=false;
 
-  const companionText = selectedService === '护航服务'
-   ? '护航服务'
-   : (companionCount === 2 ? '双陪（2人）' : '单陪（1人）');
+  const companionText=selectedService==='护航服务'
+   ?'护航服务'
+   :(companionCount===2?'双陪（2人）':'单陪（1人）');
 
-  message.style.color = '#d45c91';
-
-  message.innerHTML =
+  message.style.color='#d45c91';
+  message.innerHTML=
    '订单提交成功！<br>'+
    '订单编号：'+escapeHTML(result.order_no)+'<br>'+
    '服务：'+escapeHTML(result.service)+'<br>'+
    '陪玩人数：'+escapeHTML(companionText)+'<br>'+
    '金额：¥'+escapeHTML(result.amount);
 
-  document.getElementById('paymentOrderInfo').innerHTML =
+  document.getElementById('paymentOrderInfo').innerHTML=
    '订单编号：'+escapeHTML(result.order_no)+'<br>'+
    '服务：'+escapeHTML(result.service)+'<br>'+
    '陪玩人数：'+escapeHTML(companionText)+'<br>'+
@@ -748,26 +512,25 @@ async function submitOrder(){
 
   document.getElementById('paymentBox').classList.remove('hidden');
 
-  const qr = document.getElementById('paymentQR');
-
+  const qr=document.getElementById('paymentQR');
   qr.classList.add('hidden');
   qr.removeAttribute('src');
 
-  document.getElementById('paymentTip').innerText =
-   '请选择支付方式查看收款二维码。';
+  document.getElementById('paymentTip').innerText='请选择支付方式查看收款二维码。';
+  document.getElementById('paymentMessage').innerText='';
+  document.getElementById('paymentStatus').innerText='';
 
-  document.getElementById('paymentMessage').innerText = '';
-  document.getElementById('paymentStatus').innerText = '';
-
-  document.getElementById('paidButton').disabled = true;
-  document.getElementById('paidButton').innerText = '我已付款';
+  document.getElementById('paidButton').disabled=true;
+  document.getElementById('paidButton').innerText='我已付款';
 
   document.getElementById('wechatButton').classList.remove('active');
   document.getElementById('alipayButton').classList.remove('active');
 
-  document.getElementById('nickname').value = '';
-  document.getElementById('gameid').value = '';
-  document.getElementById('note').value = '';
+  document.getElementById('nickname').value='';
+  document.getElementById('gameid').value='';
+  document.getElementById('note').value='';
+
+  saveCurrentOrder();
 
   document.getElementById('paymentBox').scrollIntoView({
    behavior:'smooth',
@@ -776,21 +539,69 @@ async function submitOrder(){
 
  }catch(error){
 
-  message.style.color = 'red';
-
-  message.innerText =
-   '提交失败：'+(error.message || '未知错误')+
+  message.style.color='red';
+  message.innerText='提交失败：'+(error.message||'未知错误')+
    '。如果不确定是否创建成功，请先检查后台订单，不要连续重复提交。';
 
  }finally{
 
-  button.disabled = false;
-  button.innerText = '提交订单';
+  button.disabled=false;
+  button.innerText='提交订单';
 
  }
+
 }
 
-/* 8. 选择付款方式 */
+/* 9. 加载二维码 */
+
+function loadPaymentQR(method,isRestoring){
+
+ currentPaymentMethod=method;
+ paymentQrReady=false;
+
+ const qr=document.getElementById('paymentQR');
+ const tip=document.getElementById('paymentTip');
+ const paidButton=document.getElementById('paidButton');
+
+ document.getElementById('wechatButton').classList.toggle('active',method==='微信支付');
+ document.getElementById('alipayButton').classList.toggle('active',method==='支付宝');
+
+ qr.classList.add('hidden');
+ paidButton.disabled=true;
+
+ tip.innerText='正在加载收款二维码...';
+
+ qr.onload=function(){
+
+  paymentQrReady=true;
+  qr.classList.remove('hidden');
+
+  if(paymentApplicationSubmitted){
+   paidButton.disabled=true;
+   paidButton.innerText='已提交付款申请';
+   tip.innerText='原付款二维码已恢复。该订单已经提交付款申请，请等待客服核实。';
+  }else{
+   paidButton.disabled=false;
+   paidButton.innerText='我已付款';
+   tip.innerText='请使用'+method+'扫码支付，支付金额：¥'+currentOrderAmount+'。';
+  }
+
+ };
+
+ qr.onerror=function(){
+
+  paymentQrReady=false;
+  qr.classList.add('hidden');
+  paidButton.disabled=true;
+
+  tip.innerText='二维码加载失败，请刷新网页或联系客服处理。';
+
+ };
+
+ qr.src=method==='微信支付'?WECHAT_QR:ALIPAY_QR;
+}
+
+/* 10. 选择付款方式 */
 
 function choosePayment(method){
 
@@ -799,63 +610,115 @@ function choosePayment(method){
   return;
  }
 
- /* 修复：只有真正提交过付款申请，才禁止切换支付方式 */
  if(paymentApplicationSubmitted){
   alert('当前订单已经提交过付款申请，请等待客服核实。');
   return;
  }
 
- currentPaymentMethod = method;
- paymentQrReady = false;
+ currentPaymentMethod=method;
+ saveCurrentOrder();
+ loadPaymentQR(method,false);
+}
 
- const qr = document.getElementById('paymentQR');
- const tip = document.getElementById('paymentTip');
- const paidButton = document.getElementById('paidButton');
+/* 11. 恢复订单 */
 
- const wechatButton = document.getElementById('wechatButton');
- const alipayButton = document.getElementById('alipayButton');
+function restorePendingOrder(){
 
- paidButton.disabled = true;
+ const saved=getSavedOrder();
 
- qr.classList.add('hidden');
+ if(!saved)return;
 
- wechatButton.classList.remove('active');
- alipayButton.classList.remove('active');
+ currentOrderNo=saved.order_no;
+ currentOrderAmount=Number(saved.amount);
+ currentPaymentMethod=saved.payment_method||null;
+ selectedService=saved.service||'娱乐陪玩';
+ selectedCompanionCount=Number(saved.companion_count)===2?2:1;
+ paymentApplicationSubmitted=saved.payment_application_submitted===true;
 
- tip.innerText = '正在加载收款二维码...';
+ const companionText=selectedService==='护航服务'
+  ?'护航服务（固定1人）'
+  :(selectedCompanionCount===2?'双陪（2人）':'单陪（1人）');
 
- if(method === '微信支付'){
-  wechatButton.classList.add('active');
+ document.getElementById('paymentOrderInfo').innerHTML=
+  '订单编号：'+escapeHTML(saved.order_no)+'<br>'+
+  '服务：'+escapeHTML(selectedService)+'<br>'+
+  '陪玩人数：'+escapeHTML(companionText)+'<br>'+
+  '订单金额：<b style="color:#df6396;font-size:20px">¥'+
+  escapeHTML(saved.amount)+'</b>';
+
+ document.getElementById('paymentBox').classList.remove('hidden');
+
+ document.getElementById('submitButton').disabled=true;
+ document.getElementById('submitButton').innerText='当前有未完成订单';
+
+ document.getElementById('message').style.color='#d45c91';
+ document.getElementById('message').innerText='已为你恢复之前的订单，请继续完成付款。';
+
+ if(paymentApplicationSubmitted){
+
+  document.getElementById('paymentMessage').style.color='#d45c91';
+  document.getElementById('paymentMessage').innerText='这笔订单已经提交过付款申请。';
+  document.getElementById('paymentStatus').innerText='付款状态：待核实';
+  document.getElementById('paidButton').disabled=true;
+  document.getElementById('paidButton').innerText='已提交付款申请';
+
  }else{
-  alipayButton.classList.add('active');
+
+  document.getElementById('paymentMessage').innerText='';
+  document.getElementById('paymentStatus').innerText='';
+
  }
 
- qr.onload = function(){
+ if(currentPaymentMethod){
+  loadPaymentQR(currentPaymentMethod,true);
+ }else{
+  document.getElementById('paymentTip').innerText='已恢复原订单，请选择微信支付或支付宝继续付款。';
+  document.getElementById('paidButton').disabled=true;
+ }
 
-  paymentQrReady = true;
-  qr.classList.remove('hidden');
-  paidButton.disabled = false;
-
-  tip.innerText =
-   '请使用'+method+'扫码支付，支付金额：¥'+currentOrderAmount+'。';
-
- };
-
- qr.onerror = function(){
-
-  paymentQrReady = false;
-  qr.classList.add('hidden');
-  paidButton.disabled = true;
-
-  tip.innerText = '二维码加载失败，请联系客服处理。';
-
- };
-
- qr.src = method === '微信支付' ? WECHAT_QR : ALIPAY_QR;
+ document.getElementById('paymentBox').scrollIntoView({
+  behavior:'smooth',
+  block:'center'
+ });
 
 }
 
-/* 9. 老板提交付款申请 */
+/* 12. 结束当前订单 */
+
+function resetCurrentOrder(){
+
+ if(!currentOrderNo)return;
+
+ const confirmed=confirm(
+  '确定结束当前订单并清除本机保存的订单信息吗？\n\n注意：这只会清除本机的恢复记录，不会删除数据库中的订单，也不会自动退款或取消订单。'
+ );
+
+ if(!confirmed)return;
+
+ removeSavedOrder();
+
+ currentOrderNo=null;
+ currentOrderAmount=0;
+ currentPaymentMethod=null;
+ paymentQrReady=false;
+ paymentApplicationSubmitted=false;
+
+ document.getElementById('paymentBox').classList.add('hidden');
+ document.getElementById('message').innerText='';
+ document.getElementById('paymentMessage').innerText='';
+ document.getElementById('paymentStatus').innerText='';
+
+ document.getElementById('submitButton').disabled=false;
+ document.getElementById('submitButton').innerText='提交订单';
+
+ document.getElementById('paymentQR').classList.add('hidden');
+ document.getElementById('paymentQR').removeAttribute('src');
+
+ alert('本机订单恢复记录已清除。你现在可以重新下单。');
+
+}
+
+/* 13. 老板提交付款申请 */
 
 async function markPaid(){
 
@@ -879,35 +742,32 @@ async function markPaid(){
   return;
  }
 
- const button = document.getElementById('paidButton');
- const message = document.getElementById('paymentMessage');
+ const button=document.getElementById('paidButton');
+ const message=document.getElementById('paymentMessage');
 
- button.disabled = true;
- button.innerText = '正在提交...';
+ button.disabled=true;
+ button.innerText='正在提交...';
 
- message.style.color = '#888';
- message.innerText = '正在提交付款申请，请稍候...';
+ message.style.color='#888';
+ message.innerText='正在提交付款申请，请稍候...';
 
  try{
 
-  await callNetlifyFunction(
-   'mark-order-paid',
-   {
-    order_no:currentOrderNo,
-    payment_method:currentPaymentMethod
-   }
-  );
+  await callNetlifyFunction('mark-order-paid',{
+   order_no:currentOrderNo,
+   payment_method:currentPaymentMethod
+  });
 
-  paymentApplicationSubmitted = true;
+  paymentApplicationSubmitted=true;
+  saveCurrentOrder();
 
-  message.style.color = '#d45c91';
-  message.innerText = '付款申请提交成功，请等待客服核实到账。';
+  message.style.color='#d45c91';
+  message.innerText='付款申请提交成功，请等待客服核实到账。';
 
-  document.getElementById('paymentStatus').innerText =
-   '付款状态：待核实';
+  document.getElementById('paymentStatus').innerText='付款状态：待核实';
 
-  button.innerText = '已提交付款申请';
-  button.disabled = true;
+  button.innerText='已提交付款申请';
+  button.disabled=true;
 
   if(currentUser){
    await loadOrders();
@@ -915,56 +775,54 @@ async function markPaid(){
 
  }catch(error){
 
-  message.style.color = 'red';
-  message.innerText = '提交失败：'+error.message;
+  message.style.color='red';
+  message.innerText='提交失败：'+error.message+
+   '。如果页面意外关闭或网络中断，请先联系客服核对付款申请，避免重复提交。';
 
-  button.disabled = false;
-  button.innerText = '我已付款';
+  button.disabled=false;
+  button.innerText='我已付款';
 
  }
 
 }
 
-/* 10. 管理员登录 */
+/* 14. 管理员登录 */
 
 async function adminLogin(){
 
- const email = document.getElementById('email').value.trim();
- const password = document.getElementById('password').value;
+ const email=document.getElementById('email').value.trim();
+ const password=document.getElementById('password').value;
 
- const message = document.getElementById('loginMessage');
- const button = document.getElementById('adminLoginButton');
+ const message=document.getElementById('loginMessage');
+ const button=document.getElementById('adminLoginButton');
 
- if(!email || !password){
-  message.style.color = 'red';
-  message.innerText = '请输入管理员邮箱和密码。';
+ if(!email||!password){
+  message.style.color='red';
+  message.innerText='请输入管理员邮箱和密码。';
   return;
  }
 
- button.disabled = true;
- button.innerText = '正在登录...';
+ button.disabled=true;
+ button.innerText='正在登录...';
 
- message.style.color = '#888';
- message.innerText = '正在验证管理员账号...';
+ message.style.color='#888';
+ message.innerText='正在验证管理员账号...';
 
  try{
 
-  const client = getDB();
+  const client=getDB();
 
-  const {data,error} = await client.auth.signInWithPassword({
+  const {data,error}=await client.auth.signInWithPassword({
    email:email,
    password:password
   });
 
-  if(error) throw error;
+  if(error)throw error;
+  if(!data.user)throw new Error('登录成功，但没有获取到用户信息。');
 
-  if(!data.user){
-   throw new Error('登录成功，但没有获取到用户信息。');
-  }
+  currentUser=data.user;
 
-  currentUser = data.user;
-
-  message.innerText = '登录成功！';
+  message.innerText='登录成功！';
 
   document.getElementById('loginBox').classList.add('hidden');
   document.getElementById('adminBox').classList.remove('hidden');
@@ -973,27 +831,28 @@ async function adminLogin(){
 
  }catch(error){
 
-  message.style.color = 'red';
-  message.innerText = '登录失败：'+error.message;
+  message.style.color='red';
+  message.innerText='登录失败：'+error.message;
 
  }finally{
 
-  button.disabled = false;
-  button.innerText = '管理员登录';
+  button.disabled=false;
+  button.innerText='管理员登录';
 
  }
 
 }
 
-/* 11. 管理员退出 */
+/* 15. 管理员退出 */
 
 async function logout(){
 
  try{
-  const client = getDB();
-  const {error} = await client.auth.signOut();
 
-  if(error) throw error;
+  const client=getDB();
+  const {error}=await client.auth.signOut();
+
+  if(error)throw error;
 
  }catch(error){
 
@@ -1002,34 +861,31 @@ async function logout(){
 
  }
 
- currentUser = null;
+ currentUser=null;
 
  document.getElementById('adminBox').classList.add('hidden');
  document.getElementById('loginBox').classList.remove('hidden');
- document.getElementById('loginMessage').innerText = '';
+ document.getElementById('loginMessage').innerText='';
 
 }
 
-/* 12. 自动恢复管理员登录状态 */
+/* 16. 恢复管理员登录状态 */
 
 async function restoreAdminSession(){
 
- const message = document.getElementById('loginMessage');
+ const message=document.getElementById('loginMessage');
 
  try{
 
-  const client = getDB();
+  const client=getDB();
 
-  message.style.color = '#888';
-  message.innerText = '正在检查管理员登录状态...';
+  const {data,error}=await client.auth.getSession();
 
-  const {data,error} = await client.auth.getSession();
+  if(error)throw error;
 
-  if(error) throw error;
+  if(data.session&&data.session.user){
 
-  if(data.session && data.session.user){
-
-   currentUser = data.session.user;
+   currentUser=data.session.user;
 
    document.getElementById('loginBox').classList.add('hidden');
    document.getElementById('adminBox').classList.remove('hidden');
@@ -1038,34 +894,31 @@ async function restoreAdminSession(){
 
   }else{
 
-   currentUser = null;
-
+   currentUser=null;
    document.getElementById('adminBox').classList.add('hidden');
    document.getElementById('loginBox').classList.remove('hidden');
-
-   message.innerText = '';
+   message.innerText='';
 
   }
 
  }catch(error){
 
-  currentUser = null;
-
+  currentUser=null;
   document.getElementById('adminBox').classList.add('hidden');
   document.getElementById('loginBox').classList.remove('hidden');
 
-  message.style.color = 'red';
-  message.innerText = '登录状态恢复失败，请重新登录：'+error.message;
+  message.style.color='red';
+  message.innerText='登录状态恢复失败，请重新登录：'+error.message;
 
  }
 
 }
 
-/* 13. HTML 安全处理 */
+/* 17. HTML 安全处理 */
 
 function escapeHTML(value){
 
- return String(value ?? '').replace(/[&<>"']/g,function(char){
+ return String(value??'').replace(/[&<>"']/g,function(char){
 
   return {
    '&':'&amp;',
@@ -1079,73 +932,67 @@ function escapeHTML(value){
 
 }
 
-/* 14. 后台按钮 */
+/* 18. 后台按钮 */
 
 function createAdminButton(text,callback){
 
- const button = document.createElement('button');
+ const button=document.createElement('button');
 
- button.type = 'button';
- button.className = 'secondary';
- button.innerText = text;
-
+ button.type='button';
+ button.className='secondary';
+ button.innerText=text;
  button.addEventListener('click',callback);
 
  return button;
 
 }
 
-/* 15. 后台加载订单 */
+/* 19. 后台加载订单 */
 
 async function loadOrders(){
 
- const box = document.getElementById('orders');
-
- box.innerHTML = '正在加载订单...';
+ const box=document.getElementById('orders');
+ box.innerHTML='正在加载订单...';
 
  try{
 
-  if(!currentUser){
-   throw new Error('管理员尚未登录。');
-  }
+  if(!currentUser)throw new Error('管理员尚未登录。');
 
-  const client = getDB();
+  const client=getDB();
 
-  const {data,error} = await client
+  const {data,error}=await client
    .from('orders')
    .select('*')
    .order('created_at',{ascending:false});
 
-  if(error) throw error;
+  if(error)throw error;
 
-  if(!data || data.length === 0){
-   box.innerHTML = '目前还没有订单。';
+  if(!data||data.length===0){
+   box.innerHTML='目前还没有订单。';
    return;
   }
 
-  box.innerHTML = '';
+  box.innerHTML='';
 
   data.forEach(function(order){
 
-   const item = document.createElement('div');
-   item.className = 'order';
+   const item=document.createElement('div');
+   item.className='order';
 
-   const paymentStatus = order.payment_status || '待付款';
-   const paymentMethod = order.payment_method || '尚未选择';
+   const paymentStatus=order.payment_status||'待付款';
+   const paymentMethod=order.payment_method||'尚未选择';
 
-   const companionText = order.service === '护航服务'
-    ? '护航服务（固定1人）'
-    : (Number(order.companion_count) === 2
-       ? '双陪（2人）'
-       : '单陪（1人）');
+   const companionText=order.service==='护航服务'
+    ?'护航服务（固定1人）'
+    :(Number(order.companion_count)===2?'双陪（2人）':'单陪（1人）');
 
-   const addText = function(label,value){
+   const addText=function(label,value){
 
-    const strong = document.createElement('strong');
-    strong.innerText = label + '：';
+    const strong=document.createElement('strong');
+    strong.innerText=label+'：';
 
     item.appendChild(strong);
-    item.appendChild(document.createTextNode(String(value ?? '')));
+    item.appendChild(document.createTextNode(String(value??'')));
     item.appendChild(document.createElement('br'));
 
    };
@@ -1158,47 +1005,44 @@ async function loadOrders(){
    addText('数量',order.quantity);
    addText('金额','¥'+order.amount);
    addText('预约时间',order.timing);
-   addText('备注',order.note || '无');
+   addText('备注',order.note||'无');
    addText('付款方式',paymentMethod);
 
-   const paymentLabel = document.createElement('strong');
-   paymentLabel.innerText = '付款状态：';
+   const paymentLabel=document.createElement('strong');
+   paymentLabel.innerText='付款状态：';
    item.appendChild(paymentLabel);
 
-   const paymentSpan = document.createElement('span');
-   paymentSpan.className = 'status';
-   paymentSpan.innerText = paymentStatus;
-
+   const paymentSpan=document.createElement('span');
+   paymentSpan.className='status';
+   paymentSpan.innerText=paymentStatus;
    item.appendChild(paymentSpan);
    item.appendChild(document.createElement('br'));
 
-   addText('打手',order.worker_name || '暂未分配');
+   addText('打手',order.worker_name||'暂未分配');
 
-   const statusLabel = document.createElement('strong');
-   statusLabel.innerText = '订单状态：';
+   const statusLabel=document.createElement('strong');
+   statusLabel.innerText='订单状态：';
    item.appendChild(statusLabel);
 
-   const statusSpan = document.createElement('span');
-   statusSpan.className = 'status';
-   statusSpan.innerText = order.status || '未知';
-
+   const statusSpan=document.createElement('span');
+   statusSpan.className='status';
+   statusSpan.innerText=order.status||'未知';
    item.appendChild(statusSpan);
    item.appendChild(document.createElement('br'));
 
-   const workerLabel = document.createElement('label');
-   workerLabel.innerText = '填写打手名称';
+   const workerLabel=document.createElement('label');
+   workerLabel.innerText='填写打手名称';
    item.appendChild(workerLabel);
 
-   const workerInput = document.createElement('input');
-   workerInput.placeholder = '填写打手名称';
-   workerInput.value = order.worker_name || '';
-
+   const workerInput=document.createElement('input');
+   workerInput.placeholder='填写打手名称';
+   workerInput.value=order.worker_name||'';
    item.appendChild(workerInput);
 
-   const actions = document.createElement('div');
-   actions.className = 'admin-actions';
+   const actions=document.createElement('div');
+   actions.className='admin-actions';
 
-   if(paymentStatus === '待核实'){
+   if(paymentStatus==='待核实'){
 
     actions.appendChild(
      createAdminButton('确认收款',function(){
@@ -1208,23 +1052,17 @@ async function loadOrders(){
 
    }
 
-   actions.appendChild(
-    createAdminButton('接单',function(){
-     updateOrder(order.id,'已接单');
-    })
-   );
+   actions.appendChild(createAdminButton('接单',function(){
+    updateOrder(order.id,'已接单');
+   }));
 
-   actions.appendChild(
-    createAdminButton('分配打手',function(){
-     assignWorker(order.id,workerInput.value);
-    })
-   );
+   actions.appendChild(createAdminButton('分配打手',function(){
+    assignWorker(order.id,workerInput.value);
+   }));
 
-   actions.appendChild(
-    createAdminButton('完成',function(){
-     updateOrder(order.id,'已完成');
-    })
-   );
+   actions.appendChild(createAdminButton('完成',function(){
+    updateOrder(order.id,'已完成');
+   }));
 
    item.appendChild(actions);
    box.appendChild(item);
@@ -1233,15 +1071,13 @@ async function loadOrders(){
 
  }catch(error){
 
-  box.innerHTML =
-   '<span style="color:red">订单加载失败：'+
-   escapeHTML(error.message)+'</span>';
+  box.innerHTML='<span style="color:red">订单加载失败：'+escapeHTML(error.message)+'</span>';
 
  }
 
 }
 
-/* 16. 管理员确认收款 */
+/* 20. 管理员确认收款 */
 
 async function confirmPayment(id){
 
@@ -1250,33 +1086,30 @@ async function confirmPayment(id){
   return;
  }
 
- const confirmed = confirm(
+ const confirmed=confirm(
   '请确认已经在微信或支付宝实际收到这笔订单的款项。确认后将标记为已付款。'
  );
 
- if(!confirmed) return;
+ if(!confirmed)return;
 
  try{
 
-  const client = getDB();
+  const client=getDB();
 
-  const {data,error} = await client
+  const {data,error}=await client
    .from('orders')
-   .update({
-    payment_status:'已付款'
-   })
+   .update({payment_status:'已付款'})
    .eq('id',id)
    .eq('payment_status','待核实')
    .select('id');
 
-  if(error) throw error;
+  if(error)throw error;
 
-  if(!data || data.length === 0){
+  if(!data||data.length===0){
    throw new Error('没有更新任何订单。订单可能已被处理，或数据库权限不允许此次操作。');
   }
 
   alert('收款状态已更新。');
-
   await loadOrders();
 
  }catch(error){
@@ -1287,7 +1120,7 @@ async function confirmPayment(id){
 
 }
 
-/* 17. 修改订单状态 */
+/* 21. 修改订单状态 */
 
 async function updateOrder(id,status){
 
@@ -1298,24 +1131,21 @@ async function updateOrder(id,status){
 
  try{
 
-  const client = getDB();
+  const client=getDB();
 
-  const {data,error} = await client
+  const {data,error}=await client
    .from('orders')
-   .update({
-    status:status
-   })
+   .update({status:status})
    .eq('id',id)
    .select('id');
 
-  if(error) throw error;
+  if(error)throw error;
 
-  if(!data || data.length === 0){
+  if(!data||data.length===0){
    throw new Error('没有更新任何订单，请检查数据库权限。');
   }
 
   alert('订单状态已更新。');
-
   await loadOrders();
 
  }catch(error){
@@ -1326,7 +1156,7 @@ async function updateOrder(id,status){
 
 }
 
-/* 18. 分配打手 */
+/* 22. 分配打手 */
 
 async function assignWorker(id,name){
 
@@ -1335,7 +1165,7 @@ async function assignWorker(id,name){
   return;
  }
 
- const workerName = String(name || '').trim();
+ const workerName=String(name||'').trim();
 
  if(!workerName){
   alert('请先填写打手名称。');
@@ -1344,24 +1174,21 @@ async function assignWorker(id,name){
 
  try{
 
-  const client = getDB();
+  const client=getDB();
 
-  const {data,error} = await client
+  const {data,error}=await client
    .from('orders')
-   .update({
-    worker_name:workerName
-   })
+   .update({worker_name:workerName})
    .eq('id',id)
    .select('id');
 
-  if(error) throw error;
+  if(error)throw error;
 
-  if(!data || data.length === 0){
+  if(!data||data.length===0){
    throw new Error('没有更新任何订单，请检查数据库权限。');
   }
 
   alert('打手分配成功。');
-
   await loadOrders();
 
  }catch(error){
@@ -1372,11 +1199,11 @@ async function assignWorker(id,name){
 
 }
 
-/* 19. 页面初始化 */
+/* 23. 页面初始化 */
 
 document.addEventListener('DOMContentLoaded',function(){
 
- const quantity = document.getElementById('quantity');
+ const quantity=document.getElementById('quantity');
 
  quantity.addEventListener('change',calculate);
  quantity.addEventListener('input',calculate);
@@ -1406,8 +1233,15 @@ document.addEventListener('DOMContentLoaded',function(){
  document.getElementById('paidButton')
   .addEventListener('click',markPaid);
 
+ document.getElementById('resetOrderButton')
+  .addEventListener('click',resetCurrentOrder);
+
  calculate();
 
+ /* 恢复老板未完成的订单 */
+ restorePendingOrder();
+
+ /* 恢复管理员登录 */
  restoreAdminSession();
 
 });
